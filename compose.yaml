@@ -1,12 +1,12 @@
 services:
   postgres:
-    image: "postgres:latest"
+    image: bitnami/postgresql:latest
     environment:
-      POSTGRES_DB: budgets_db
-      POSTGRES_PASSWORD: secretpass
-      POSTGRES_USER: rxman
+      POSTGRESQL_DATABASE: budgets_db
+      POSTGRESQL_PASSWORD: secretpass
+      POSTGRESQL_USERNAME: rxman
     ports:
-      - "5444:5444"
+      - "5444:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
