@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: "postgres:latest"
+    environment:
+      POSTGRES_DB: budgets_db
+      POSTGRES_PASSWORD: secretpass
+      POSTGRES_USER: rxman
+    ports:
+      - "5444:5444"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - budget_network
+
+volumes:
+  postgres_data:
+networks:
+  budget_network:
+    driver: bridge

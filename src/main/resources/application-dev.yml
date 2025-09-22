@@ -1,0 +1,16 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5444/budgets_db
+    username: rxman
+    password: secretpass
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show_sql: true
+    properties:
+      hibernate.format_sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true

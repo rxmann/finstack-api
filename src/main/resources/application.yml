@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: budget-app
+  profiles:
+    active: dev
