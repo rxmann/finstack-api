@@ -1,4 +1,4 @@
-package com.app.budget.budget_app.controller;
+package com.app.budget_app.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 

@@ -1,4 +1,4 @@
-package com.app.budget.budget_app.config.security;
+package com.app.budget_app.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

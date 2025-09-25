@@ -1,4 +1,4 @@
-package com.app.budget.budget_app.model;
+package com.app.budget_app.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
