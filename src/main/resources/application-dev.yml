@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5444/budgets_db
@@ -7,10 +9,21 @@ spring:
     password: secretpass
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show_sql: true
     properties:
       hibernate.format_sql: true
   flyway:
     enabled: true
     baseline-on-migrate: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${client_id}
+            client-secret: ${client_secret}
+            scope:
+              - openid
+              - profile
+              - email
