@@ -2,6 +2,12 @@ server:
   port: 8080
   servlet:
     context-path: /api/v1
+application:
+  security:
+    jwt:
+      secret-key: apple
+      expiration: 7
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5444/budgets_db
@@ -21,9 +27,14 @@ spring:
       client:
         registration:
           google:
-            client-id: ${client_id}
-            client-secret: ${client_secret}
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_SECRET_KEY}
             scope:
               - openid
               - profile
               - email
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

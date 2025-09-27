@@ -1,4 +1,4 @@
-package com.app.budget_app.model;
+package com.app.budgets.model;
 
 import java.time.LocalDateTime;
 
