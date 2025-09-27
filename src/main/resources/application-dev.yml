@@ -5,8 +5,8 @@ server:
 application:
   security:
     jwt:
-      secret-key: apple
-      expiration: 7
+      secret-key: dGVzdF9zZWNyZXRfcGFzcwo=
+      expiration: 900000
 
 spring:
   datasource:

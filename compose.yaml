@@ -11,6 +11,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - budget_network
+    restart: always
 
 volumes:
   postgres_data:
