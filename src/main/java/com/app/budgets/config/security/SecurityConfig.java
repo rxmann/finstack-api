@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.app.budgets.filter.JwtAuthFilter;
+import com.app.budgets.config.security.JwtAuthFilter;
 
 import lombok.RequiredArgsConstructor;
 

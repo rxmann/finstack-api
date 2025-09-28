@@ -1,12 +1,14 @@
-package com.app.budgets.config.security;
+package com.app.budgets.auth;
 
-import com.app.budgets.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.app.budgets.user.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -17,8 +19,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return (UserDetails) repository.findByEmail(email)
+        var user = repository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+        return CustomUserDetails.builder().user(user).build();
     }
 
 }

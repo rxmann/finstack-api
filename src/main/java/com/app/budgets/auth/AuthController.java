@@ -1,4 +1,4 @@
-package com.app.budgets.controller;
+package com.app.budgets.auth;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.budgets.auth.dto.AuthenticationRequest;
 import com.app.budgets.auth.dto.AuthenticationResponse;
 import com.app.budgets.auth.dto.RegisterRequest;
-import com.app.budgets.service.AuthService;
-
 import jakarta.validation.Valid;
 
 @RestController

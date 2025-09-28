@@ -1,4 +1,4 @@
-package com.app.budgets.filter;
+package com.app.budgets.config.security;
 
 import java.io.IOException;
 
@@ -14,8 +14,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.app.budgets.config.security.JwtService;
-
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,8 +24,13 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
-    private JwtService jwtService;
-    private UserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+
+    public JwtAuthFilter(JwtService jwtService, UserDetailsService usd) {
+        this.jwtService = jwtService;
+        this.userDetailsService = usd;
+    }
 
     @Override
     protected void doFilterInternal(

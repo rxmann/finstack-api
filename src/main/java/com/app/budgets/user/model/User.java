@@ -1,4 +1,4 @@
-package com.app.budgets.model;
+package com.app.budgets.user.model;
 
 import java.util.List;
 

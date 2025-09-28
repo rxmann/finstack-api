@@ -1,26 +1,30 @@
-package com.app.budgets.service;
+package com.app.budgets.auth;
 
-import lombok.RequiredArgsConstructor;
+import java.util.Collections;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.app.budgets.auth.CustomUserDetails;
 import com.app.budgets.auth.dto.AuthenticationRequest;
 import com.app.budgets.auth.dto.AuthenticationResponse;
 import com.app.budgets.auth.dto.RegisterRequest;
 import com.app.budgets.config.security.JwtService;
-import com.app.budgets.model.User;
-import com.app.budgets.repository.UserRepository;
+import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
+import com.app.budgets.user.UserRepository;
+import com.app.budgets.user.model.User;
 
-import java.util.Collections;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -28,6 +32,15 @@ public class AuthService {
 
     @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException("User already exists with email: " + request.getEmail());
+        }
+
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("User already exists with username: " + request.getUsername());
+        }
+
         User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -50,7 +63,7 @@ public class AuthService {
     @Transactional
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         // 1️⃣ Authenticate using AuthenticationManager
-        authenticationManager.authenticate(
+        var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()));
