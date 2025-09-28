@@ -38,7 +38,10 @@ public class User extends BaseEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @Column(name = "account_locked", nullable = true)
     private boolean accountLocked;
+
+    @Column(nullable = false)
     private List<String> roles;
 
 }

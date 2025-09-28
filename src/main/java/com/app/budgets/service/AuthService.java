@@ -32,6 +32,7 @@ public class AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
+                .username(request.getUsername())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .isActive(true)
                 .roles(Collections.singletonList("ROLE_USER"))

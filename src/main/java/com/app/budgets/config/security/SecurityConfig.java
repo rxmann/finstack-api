@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
 
 import com.app.budgets.filter.JwtAuthFilter;
 
@@ -26,31 +25,30 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
-    private final CsrfTokenRepository csrfTokenRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
                 .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository))
+                .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(
-                                "/api/v1/public",
-                                "/api/v1/auth/**")
+                                "/auth/**",
+                                "/public")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login(oauth -> oauth
-                        .authorizationEndpoint(auth -> auth
-                                .baseUri("/oauth2/authorize"))
-                        .redirectionEndpoint(redir -> redir
-                                .baseUri("/oauth2/callback/*")))
+                // .oauth2Login(oauth -> oauth
+                // .authorizationEndpoint(auth -> auth
+                // .baseUri("/oauth2/authorize"))
+                // .redirectionEndpoint(redir -> redir
+                // .baseUri("/oauth2/callback/*")))
                 .build();
     }
 }

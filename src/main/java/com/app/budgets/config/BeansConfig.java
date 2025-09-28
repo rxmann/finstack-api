@@ -57,11 +57,12 @@ public class BeansConfig {
         return source;
     }
 
-    @Bean
-    public CsrfTokenRepository csrfTokenRepository() {
-        // example: cookie-based CSRF tokens
-        CookieCsrfTokenRepository repo = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        return repo;
-    }
+    // @Bean
+    // public CsrfTokenRepository csrfTokenRepository() {
+    // // example: cookie-based CSRF tokens
+    // CookieCsrfTokenRepository repo =
+    // CookieCsrfTokenRepository.withHttpOnlyFalse();
+    // return repo;
+    // }
 
 }
