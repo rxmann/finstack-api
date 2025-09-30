@@ -1,15 +1,13 @@
 package com.app.budgets.user.model;
 
-import java.util.List;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +15,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Entity
 @EqualsAndHashCode(callSuper = true)
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_provider_id_provider_type", columnList = "provider_id, provider_type" )
+})
 public class User extends BaseEntity {
 
     @Column(unique = true, nullable = false)
@@ -25,12 +25,6 @@ public class User extends BaseEntity {
 
     @Column(unique = true, nullable = false)
     private String username;
-
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
@@ -43,5 +37,13 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private List<String> roles;
+
+    @Column(name = "provider_id")
+    private String providerId;
+
+    @Column(name = "provider_type")
+    @Enumerated(EnumType.STRING)
+    private AuthProviderType authProviderType;
+
 
 }

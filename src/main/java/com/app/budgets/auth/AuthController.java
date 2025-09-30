@@ -1,16 +1,11 @@
 package com.app.budgets.auth;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.app.budgets.auth.dto.AuthenticationRequest;
-import com.app.budgets.auth.dto.AuthenticationResponse;
-import com.app.budgets.auth.dto.RegisterRequest;
+import com.app.budgets.auth.dto.AuthenticationRequestDto;
+import com.app.budgets.auth.dto.AuthenticationResponseDto;
+import com.app.budgets.auth.dto.RegisterRequestDto;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,12 +23,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthenticationResponseDto> register(@Valid @RequestBody RegisterRequestDto request) {
         return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponseDto> login(@Valid @RequestBody AuthenticationRequestDto request) {
         return ResponseEntity.ok(authService.authenticate(request));
     }
 

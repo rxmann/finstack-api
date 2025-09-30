@@ -1,12 +1,9 @@
 package com.app.budgets.handler;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import lombok.Getter;
+import static org.springframework.http.HttpStatus.*;
 
 public enum ErrorCodes {
 

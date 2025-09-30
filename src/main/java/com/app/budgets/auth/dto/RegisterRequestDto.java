@@ -13,15 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterRequest {
-    @NotEmpty(message = "First name must not be empty")
-    @NotBlank(message = "First name must not be empty")
-    private String firstName;
-
-    @NotEmpty(message = "Last name must not be empty")
-    @NotBlank(message = "Last name must not be empty")
-    private String lastName;
-
+public class RegisterRequestDto {
     @NotEmpty(message = "Username must not be empty")
     @NotBlank(message = "Username must not be empty")
     private String username;
