@@ -1,29 +1,28 @@
 package com.app.budgets.auth;
 
-import com.app.budgets.auth.dto.AuthenticationRequestDto;
-import com.app.budgets.auth.dto.AuthenticationResponseDto;
-import com.app.budgets.auth.dto.LoginResponseDto;
-import com.app.budgets.auth.dto.RegisterRequestDto;
-import com.app.budgets.config.security.JwtService;
-import com.app.budgets.config.security.oauth2.OAuth2Util;
-import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
-import com.app.budgets.user.UserRepository;
-import com.app.budgets.user.model.AuthProviderType;
-import com.app.budgets.user.model.User;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
+import com.app.budgets.dto.AuthenticationRequestDto;
+import com.app.budgets.dto.AuthenticationResponseDto;
+import com.app.budgets.dto.LoginResponseDto;
+import com.app.budgets.dto.RegisterRequestDto;
+import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
+import com.app.budgets.user.UserRepository;
+import com.app.budgets.user.model.AuthProviderType;
+import com.app.budgets.user.model.User;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -36,24 +35,29 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final OAuth2Util oAuth2Util;
 
-    public User signUpInternal(RegisterRequestDto registerRequestDto, AuthProviderType authProviderType, String providerId) {
+    public User signUpInternal(RegisterRequestDto registerRequestDto, AuthProviderType authProviderType,
+            String providerId) {
 
         if (userRepository.findByEmail(registerRequestDto.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("User already exists with email: " + registerRequestDto.getEmail());
         }
 
         if (userRepository.findByUsername(registerRequestDto.getUsername()).isPresent()) {
-            throw new UserAlreadyExistsException("User already exists with username: " + registerRequestDto.getUsername());
+            throw new UserAlreadyExistsException(
+                    "User already exists with username: " + registerRequestDto.getUsername());
         }
 
         User user = User.builder()
                 .username(registerRequestDto.getUsername())
+                .email(registerRequestDto.getEmail())
+                .passwordHash("grapes")
                 .providerId(providerId)
                 .authProviderType(authProviderType)
-                .roles(List.of(new String[]{"USER"}))
+                .roles(List.of(new String[] { "USER" }))
                 .build();
 
-        if(authProviderType == AuthProviderType.EMAIL) {
+        log.debug(user.toString());
+        if (authProviderType == AuthProviderType.EMAIL) {
             user.setPasswordHash(passwordEncoder.encode(registerRequestDto.getPassword()));
         }
         userRepository.save(user);
@@ -69,9 +73,10 @@ public class AuthService {
     }
 
     public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
-        var auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        User user = (User) auth.getPrincipal();
-        var userDetails = new CustomUserDetails(user);
+        var auth = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        // var userDetails = new CustomUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetails);
 
         return AuthenticationResponseDto.builder().token(jwtToken).build();
@@ -90,20 +95,23 @@ public class AuthService {
         if (user == null && emailUser == null) {
             // register user
             String username = oAuth2Util.determineUsernameFromOAuth2user(oAuth2User, registrationId, providerId);
-            user = signUpInternal(RegisterRequestDto.builder().username(username).email(email).build(), authProviderType, providerId);
+            user = signUpInternal(RegisterRequestDto.builder().username(username).email(email).build(),
+                    authProviderType, providerId);
         } else if (user != null) {
             if (email != null && !email.isBlank() && !email.equals(user.getEmail())) {
                 user.setEmail(email);
                 userRepository.save(user);
             }
         } else {
-            throw new BadCredentialsException("This email is already registered with provider "+emailUser.getAuthProviderType());
+            throw new BadCredentialsException(
+                    "This email is already registered with provider " + emailUser.getAuthProviderType());
         }
 
         var userDetails = new CustomUserDetails(user);
 
         assert user != null;
-        var response = LoginResponseDto.builder().jwt(jwtService.generateToken(userDetails)).userId(user.getId()).build();
+        var response = LoginResponseDto.builder().jwt(jwtService.generateToken(userDetails)).userId(user.getId())
+                .build();
 
         return ResponseEntity.ok(response);
     }

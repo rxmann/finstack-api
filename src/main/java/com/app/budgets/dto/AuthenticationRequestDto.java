@@ -1,4 +1,4 @@
-package com.app.budgets.auth.dto;
+package com.app.budgets.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

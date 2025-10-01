@@ -1,4 +1,4 @@
-package com.app.budgets.config.security;
+package com.app.budgets.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

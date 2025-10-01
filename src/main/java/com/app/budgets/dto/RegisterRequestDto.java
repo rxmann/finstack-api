@@ -1,4 +1,4 @@
-package com.app.budgets.auth.dto;
+package com.app.budgets.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

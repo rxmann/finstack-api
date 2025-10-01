@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "users", indexes = {
-        @Index(name = "idx_provider_id_provider_type", columnList = "provider_id, provider_type" )
+        @Index(name = "idx_provider_id_provider_type", columnList = "provider_id, provider_type")
 })
 public class User extends BaseEntity {
 
@@ -26,11 +26,11 @@ public class User extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash", nullable = true)
     private String passwordHash;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    private final Boolean isActive = true;
 
     @Column(name = "account_locked", nullable = true)
     private boolean accountLocked;
@@ -44,6 +44,5 @@ public class User extends BaseEntity {
     @Column(name = "provider_type")
     @Enumerated(EnumType.STRING)
     private AuthProviderType authProviderType;
-
 
 }

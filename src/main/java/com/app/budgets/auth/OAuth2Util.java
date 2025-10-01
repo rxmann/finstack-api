@@ -1,12 +1,13 @@
-package com.app.budgets.config.security.oauth2;
-
-import com.app.budgets.user.model.AuthProviderType;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Service;
+package com.app.budgets.auth;
 
 import java.util.Objects;
 
-@Service
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Component;
+
+import com.app.budgets.user.model.AuthProviderType;
+
+@Component
 public class OAuth2Util {
 
     public AuthProviderType getProviderTypeFromRegistrationId(String registrationId) {
@@ -25,7 +26,6 @@ public class OAuth2Util {
             default -> throw new IllegalStateException("Unexpected value: " + registrationId.toLowerCase());
         };
     }
-
 
     public String determineUsernameFromOAuth2user(OAuth2User oAuth2User, String registrationId, String providerId) {
         String email = oAuth2User.getAttribute("email");

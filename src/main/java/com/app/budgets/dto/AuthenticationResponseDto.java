@@ -1,4 +1,4 @@
-package com.app.budgets.auth.dto;
+package com.app.budgets.dto;
 
 import lombok.*;
 
@@ -6,7 +6,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@RequiredArgsConstructor
 public class AuthenticationResponseDto {
     private String token;
 }
