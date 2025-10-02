@@ -12,6 +12,7 @@ import com.app.budgets.dto.AuthenticationRequestDto;
 import com.app.budgets.dto.AuthenticationResponseDto;
 import com.app.budgets.dto.RegisterRequestDto;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -35,8 +36,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponseDto> login(@Valid @RequestBody AuthenticationRequestDto request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+    public ResponseEntity<AuthenticationResponseDto> login(@Valid @RequestBody AuthenticationRequestDto request,
+            HttpServletResponse response) {
+        return ResponseEntity.ok(authService.authenticate(request, response));
     }
 
 }

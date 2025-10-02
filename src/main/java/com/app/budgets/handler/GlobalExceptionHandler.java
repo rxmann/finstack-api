@@ -1,31 +1,69 @@
 package com.app.budgets.handler;
 
-import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
-import com.app.budgets.handler.exceptions.UserNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
+import static com.app.budgets.handler.ErrorCodes.BAD_CREDENTIALS;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
+import com.app.budgets.handler.exceptions.UserNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static com.app.budgets.handler.ErrorCodes.BAD_CREDENTIALS;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    // Handle authentication failures (unauthenticated users)
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ExceptionResponse> handleAuthenticationException(AuthenticationException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        ExceptionResponse.builder()
+                                .errorCode(401)
+                                .errorDescription("Authentication Failed")
+                                .error(ex.getMessage())
+                                .build());
+    }
+
+    // Handle access denied (authenticated but not authorized)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(
+                        ExceptionResponse.builder()
+                                .errorCode(403)
+                                .errorDescription("Access Denied")
+                                .error(ex.getMessage())
+                                .build());
+    }
+
     // Handle validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleException(MethodArgumentNotValidException ex,
-                                                             HttpServletRequest request) {
+            HttpServletRequest request) {
 
         Set<String> errors = new HashSet<>();
         ex.getBindingResult().getAllErrors()
@@ -92,4 +130,5 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(expResponse);
     }
+
 }

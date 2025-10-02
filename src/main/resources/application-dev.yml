@@ -6,7 +6,7 @@ application:
   security:
     jwt:
       secret-key: bXktc3VwZXItc2VjcmV0LWp3dC1rZXktdGhhdC1pcy1sb25nLWVub3VnaC1mb3ItMjU2LWJpdHMtc2VjdXJpdHktcmVxdWlyZW1lbnQ=
-      expiration: 900000
+      expiration: 20000
 
 spring:
   datasource:

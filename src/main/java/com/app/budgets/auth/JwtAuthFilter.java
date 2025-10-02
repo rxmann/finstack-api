@@ -2,7 +2,6 @@ package com.app.budgets.auth;
 
 import java.io.IOException;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final CookieUtil cookieUtil;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -46,19 +46,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         // Extract the auth token
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String jwt;
-        final String email;
 
-        // Validate if the auth header is a bearer token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        final String jwt = cookieUtil.extractJwtFromRequest(request);
+
+        if (jwt == null || jwt.isBlank()) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Extract the token
-        jwt = authHeader.substring(7);
-
+        final String email;
         try {
             email = jwtService.extractUsername(jwt);
             if (email != null) {

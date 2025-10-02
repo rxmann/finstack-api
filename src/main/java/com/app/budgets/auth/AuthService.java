@@ -22,6 +22,7 @@ import com.app.budgets.user.UserRepository;
 import com.app.budgets.user.model.AuthProviderType;
 import com.app.budgets.user.model.User;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -34,6 +35,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final OAuth2Util oAuth2Util;
+    private final CookieUtil cookieUtil;
 
     public User signUpInternal(RegisterRequestDto registerRequestDto, AuthProviderType authProviderType,
             String providerId) {
@@ -72,17 +74,20 @@ public class AuthService {
         return AuthenticationResponseDto.builder().token(jwtToken).build();
     }
 
-    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
+    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request, HttpServletResponse response) {
         var auth = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         // var userDetails = new CustomUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetails);
 
+        cookieUtil.addJwtCookie(response, jwtToken);
+
         return AuthenticationResponseDto.builder().token(jwtToken).build();
     }
 
-    public ResponseEntity<LoginResponseDto> handleOAuth2LoginRequest(OAuth2User oAuth2User, String registrationId) {
+    public ResponseEntity<LoginResponseDto> handleOAuth2LoginRequest(OAuth2User oAuth2User, String registrationId,
+            HttpServletResponse response) {
         // fetch the provider type and provider id
         AuthProviderType authProviderType = oAuth2Util.getProviderTypeFromRegistrationId(registrationId);
         String providerId = oAuth2Util.determineProviderIdFromOAuth2user(oAuth2User, registrationId);
@@ -109,10 +114,12 @@ public class AuthService {
 
         var userDetails = new CustomUserDetails(user);
 
-        assert user != null;
-        var response = LoginResponseDto.builder().jwt(jwtService.generateToken(userDetails)).userId(user.getId())
+        var jwtToken = jwtService.generateToken(userDetails);
+        cookieUtil.addJwtCookie(response, jwtToken);
+
+        var loginResponseDto = LoginResponseDto.builder().jwt(jwtToken).userId(user.getId())
                 .build();
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(loginResponseDto);
     }
 }
