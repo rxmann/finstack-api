@@ -1,4 +1,4 @@
-package com.app.budgets.auth;
+package com.app.budgets.auth.model;
 
 import com.app.budgets.user.model.User;
 import lombok.AllArgsConstructor;

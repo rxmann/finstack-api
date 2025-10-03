@@ -10,9 +10,9 @@ application:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5444/budgets_db
+    url: jdbc:postgresql://localhost:5432/budgets_db
     username: rxman
-    password: secretpass
+    password: apple
   jpa:
     hibernate:
       ddl-auto: update

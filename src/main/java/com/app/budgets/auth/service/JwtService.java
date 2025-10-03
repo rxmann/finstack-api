@@ -1,4 +1,4 @@
-package com.app.budgets.auth;
+package com.app.budgets.auth.service;
 
 import java.security.Key;
 import java.util.Date;

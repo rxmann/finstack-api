@@ -1,7 +1,8 @@
-package com.app.budgets.auth;
+package com.app.budgets.handler.oauth2;
 
 import java.io.IOException;
 
+import com.app.budgets.auth.service.AuthService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,7 +11,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.app.budgets.dto.LoginResponseDto;
+import com.app.budgets.auth.dto.LoginResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.ServletException;

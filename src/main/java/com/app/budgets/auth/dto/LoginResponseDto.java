@@ -1,4 +1,4 @@
-package com.app.budgets.dto;
+package com.app.budgets.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class AuthenticationRequestDto {
-    private String email;
-    private String password;
+public class LoginResponseDto {
+    String jwt;
+    String userId;
 }

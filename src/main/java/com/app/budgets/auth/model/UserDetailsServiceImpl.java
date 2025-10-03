@@ -1,4 +1,4 @@
-package com.app.budgets.auth;
+package com.app.budgets.auth.model;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

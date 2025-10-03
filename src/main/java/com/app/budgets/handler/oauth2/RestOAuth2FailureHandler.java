@@ -1,4 +1,4 @@
-package com.app.budgets.handler.exceptions;
+package com.app.budgets.handler.oauth2;
 
 import java.io.IOException;
 import java.util.HashMap;

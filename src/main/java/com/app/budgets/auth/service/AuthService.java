@@ -1,22 +1,24 @@
-package com.app.budgets.auth;
+package com.app.budgets.auth.service;
 
 import java.util.List;
 
+import com.app.budgets.util.OAuth2Util;
+import com.app.budgets.auth.model.CustomUserDetails;
+import com.app.budgets.util.CookieUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.app.budgets.dto.AuthenticationRequestDto;
-import com.app.budgets.dto.AuthenticationResponseDto;
-import com.app.budgets.dto.LoginResponseDto;
-import com.app.budgets.dto.RegisterRequestDto;
+import com.app.budgets.auth.dto.AuthenticationRequestDto;
+import com.app.budgets.auth.dto.AuthenticationResponseDto;
+import com.app.budgets.auth.dto.LoginResponseDto;
+import com.app.budgets.auth.dto.RegisterRequestDto;
 import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
 import com.app.budgets.user.UserRepository;
 import com.app.budgets.user.model.AuthProviderType;

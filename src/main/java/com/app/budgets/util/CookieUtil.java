@@ -1,4 +1,4 @@
-package com.app.budgets.auth;
+package com.app.budgets.util;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

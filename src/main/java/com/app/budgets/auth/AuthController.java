@@ -1,5 +1,6 @@
-package com.app.budgets.controller;
+package com.app.budgets.auth;
 
+import com.app.budgets.auth.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,10 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.budgets.auth.AuthService;
-import com.app.budgets.dto.AuthenticationRequestDto;
-import com.app.budgets.dto.AuthenticationResponseDto;
-import com.app.budgets.dto.RegisterRequestDto;
+import com.app.budgets.auth.dto.AuthenticationRequestDto;
+import com.app.budgets.auth.dto.AuthenticationResponseDto;
+import com.app.budgets.auth.dto.RegisterRequestDto;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

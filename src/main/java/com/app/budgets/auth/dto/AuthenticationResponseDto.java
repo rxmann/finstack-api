@@ -1,4 +1,4 @@
-package com.app.budgets.dto;
+package com.app.budgets.auth.dto;
 
 import lombok.*;
 

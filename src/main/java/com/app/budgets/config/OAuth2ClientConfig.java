@@ -18,7 +18,7 @@ public class OAuth2ClientConfig {
     private String googleClientSecret;
 
     @Bean
-    public ClientRegistrationRepository clientRegistrationRepository() {
+    public ClientRegistrationRepository myClientRegistrationRepository() {
         ClientRegistration google = ClientRegistration.withRegistrationId("google")
                 .clientId(googleClientId)
                 .clientSecret(googleClientSecret)
