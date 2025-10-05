@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
-import com.app.budgets.user.model.AuthProviderType;
+import com.app.budgets.auth.model.AuthProviderType;
 
 @Component
 public class OAuth2Util {

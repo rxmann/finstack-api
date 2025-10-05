@@ -1,4 +1,4 @@
-package com.app.budgets.user.model;
+package com.app.budgets.auth.model;
 
 public enum AuthProviderType {
     GOOGLE,

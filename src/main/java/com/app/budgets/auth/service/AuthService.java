@@ -21,7 +21,7 @@ import com.app.budgets.auth.dto.LoginResponseDto;
 import com.app.budgets.auth.dto.RegisterRequestDto;
 import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
 import com.app.budgets.user.UserRepository;
-import com.app.budgets.user.model.AuthProviderType;
+import com.app.budgets.auth.model.AuthProviderType;
 import com.app.budgets.user.model.User;
 
 import jakarta.servlet.http.HttpServletResponse;

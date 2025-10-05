@@ -1,5 +1,6 @@
 package com.app.budgets.user.model;
 
+import com.app.budgets.auth.model.AuthProviderType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

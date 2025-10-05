@@ -1,6 +1,6 @@
 package com.app.budgets.user;
 
-import com.app.budgets.user.model.AuthProviderType;
+import com.app.budgets.auth.model.AuthProviderType;
 import com.app.budgets.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
