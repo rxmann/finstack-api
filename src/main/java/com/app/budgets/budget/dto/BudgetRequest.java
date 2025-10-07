@@ -1,18 +1,17 @@
 package com.app.budgets.budget.dto;
 
+import java.time.LocalDate;
 
 import com.app.budgets.budget.model.BudgetType;
-import lombok.Data;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import lombok.Data;
 
 @Data
 public class BudgetRequest {
     private String name;
-    private BigDecimal amount;
+    private Double amount;
     private BudgetType type;
-    private Long categoryId;
+    private String categoryId;
     private LocalDate startDate;
     private LocalDate endDate;
 }

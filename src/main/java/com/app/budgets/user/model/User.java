@@ -1,14 +1,27 @@
 package com.app.budgets.user.model;
 
+import java.util.List;
+
 import com.app.budgets.auth.model.AuthProviderType;
-import jakarta.persistence.*;
+import com.app.budgets.budget.model.Budget;
+import com.app.budgets.budget.model.BudgetCategory;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -36,7 +49,7 @@ public class User extends BaseEntity {
     @Column(name = "account_locked", nullable = true)
     private boolean accountLocked;
 
-    @Column(nullable = false)
+    @Column(name = "roles")
     private List<String> roles;
 
     @Column(name = "provider_id")
@@ -46,4 +59,10 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private AuthProviderType authProviderType;
 
+    // relations
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BudgetCategory> budgetCategories;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Budget> budgets;
 }

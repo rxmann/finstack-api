@@ -25,11 +25,6 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @GetMapping("/users")
-    public String getUsers() {
-        return "Hello World!!";
-    }
-
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponseDto> register(@Valid @RequestBody RegisterRequestDto request) {
         return ResponseEntity.ok(authService.signup(request));
