@@ -3,6 +3,7 @@ package com.app.budgets.budget;
 import java.util.List;
 
 import com.app.budgets.budget.service.BudgetService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,9 +27,9 @@ public class BudgetController {
     private final BudgetService budgetService;
     private final BudgetCategoryService budgetCategoryService;
 
-    // ----- Categories -----
+    // ----- Budget Categories -----
     @PostMapping("/categories")
-    public ResponseEntity<BudgetCategoryResponse> createCategory(@RequestBody BudgetCategoryRequest request) {
+    public ResponseEntity<BudgetCategoryResponse> createCategory(@Valid @RequestBody BudgetCategoryRequest request) {
         return ResponseEntity.ok(budgetCategoryService.createCategory(request));
     }
 

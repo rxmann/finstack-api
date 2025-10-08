@@ -1,19 +1,19 @@
 package com.app.budgets.budget.service;
 
-import java.util.List;
-
-import com.app.budgets.user.UserAuth;
-import org.springframework.stereotype.Service;
-
-import com.app.budgets.budget.repository.BudgetCategoryRepository;
 import com.app.budgets.budget.dto.BudgetCategoryRequest;
 import com.app.budgets.budget.dto.BudgetCategoryResponse;
 import com.app.budgets.budget.mapper.BudgetCategoryMapper;
-
+import com.app.budgets.budget.repository.BudgetCategoryRepository;
+import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BudgetCategoryService {
 
     private final BudgetCategoryRepository categoryRepository;

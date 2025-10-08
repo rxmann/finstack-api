@@ -1,33 +1,24 @@
 package com.app.budgets.handler;
 
-import static com.app.budgets.handler.ErrorCodes.BAD_CREDENTIALS;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
+import com.app.budgets.handler.exceptions.UserNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
-import com.app.budgets.handler.exceptions.UserNotFoundException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashSet;
+import java.util.Set;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import static com.app.budgets.handler.ErrorCodes.BAD_CREDENTIALS;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -63,7 +54,7 @@ public class GlobalExceptionHandler {
     // Handle validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleException(MethodArgumentNotValidException ex,
-            HttpServletRequest request) {
+                                                             HttpServletRequest request) {
 
         Set<String> errors = new HashSet<>();
         ex.getBindingResult().getAllErrors()
@@ -107,6 +98,7 @@ public class GlobalExceptionHandler {
     // Handle user not found
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleException(UserNotFoundException ex) {
+        log.error(ex.getMessage());
         return ResponseEntity
                 .status(ErrorCodes.USER_NOT_FOUND.getStatusCode())
                 .body(
@@ -115,6 +107,37 @@ public class GlobalExceptionHandler {
                                 .errorDescription(ErrorCodes.USER_NOT_FOUND.getDescription())
                                 .error(ex.getMessage())
                                 .build());
+    }
+
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ExceptionResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        var rootMessage = ex.getMostSpecificCause().getMessage();
+        ErrorCodes errorCode = ErrorCodes.INVALID_INPUT;
+        var cleanDescription = "A data integrity constraint was violated.";
+
+        if (rootMessage != null) {
+            rootMessage = rootMessage.toLowerCase();
+
+            if (rootMessage.contains("duplicate key")) {
+                errorCode = ErrorCodes.DUPLICATE_NAME;
+                cleanDescription = "Entity with the same unique field already exists.";
+            } else if (rootMessage.contains("foreign key")) {
+                cleanDescription = "Referenced entity does not exist or is invalid.";
+            } else if (rootMessage.contains("not-null")) {
+                cleanDescription = "A required field was missing or null.";
+            } else if (rootMessage.contains("check constraint")) {
+                cleanDescription = "A field value failed a database constraint check.";
+            }
+        }
+
+        return ResponseEntity
+                .status(errorCode.getStatusCode())
+                .body(ExceptionResponse.builder()
+                        .errorCode(errorCode.getCode())
+                        .errorDescription(cleanDescription)
+                        .error(rootMessage)
+                        .build());
     }
 
     // Catch-all handler

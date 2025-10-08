@@ -26,7 +26,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class BudgetCategory extends BaseEntity {
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 20, unique = true)
     private String name;
 
     @Column(nullable = false, length = 50)

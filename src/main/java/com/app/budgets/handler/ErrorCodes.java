@@ -10,7 +10,8 @@ public enum ErrorCodes {
     BAD_CREDENTIALS(100, "Login and/or password is incorrect", UNAUTHORIZED),
     INVALID_INPUT(101, "Invalid input data", BAD_REQUEST),
     USER_EXISTS(102, "User already exists", BAD_REQUEST),
-    USER_NOT_FOUND(103, "User not found with the given details", NOT_FOUND);
+    USER_NOT_FOUND(103, "User not found with the given details", NOT_FOUND),
+    DUPLICATE_NAME(104, "Duplicate name for given entity.", BAD_REQUEST);
 
     @Getter
     private final int code;
@@ -19,7 +20,7 @@ public enum ErrorCodes {
     @Getter
     private final HttpStatus statusCode;
 
-    private ErrorCodes(int code, String description, HttpStatus statusCode) {
+    ErrorCodes(int code, String description, HttpStatus statusCode) {
         this.code = code;
         this.description = description;
         this.statusCode = statusCode;

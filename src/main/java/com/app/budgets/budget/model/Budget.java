@@ -26,10 +26,6 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "budgets")
 public class Budget extends BaseEntity {
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 20)
-    private BudgetType type;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private BudgetCategory category;
