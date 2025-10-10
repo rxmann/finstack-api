@@ -16,7 +16,7 @@ import java.util.List;
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
-    private final BudgetCategoryRepository categoryRepository;
+    private final BudgetCategoryRepository budgetCategoryRepository;
     private final BudgetMapper budgetMapper;
     private final UserAuth userAuth;
 
@@ -25,8 +25,9 @@ public class BudgetService {
         var budget = budgetMapper.toEntity(request);
         budget.setUser(user);
 
-        var category = categoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new IllegalArgumentException("Invalid category"));
-        budget.setCategory(category);
+        var budgetCategory = budgetCategoryRepository.findById(request.getBudgetCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category"));
+        budget.setBudgetCategory(budgetCategory);
 
         var saved = budgetRepository.save(budget);
         return budgetMapper.toResponse(saved);

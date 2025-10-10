@@ -1,5 +1,9 @@
 package com.app.budgets.budget.model;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Locale.Category;
+
 import com.app.budgets.user.model.BaseEntity;
 import com.app.budgets.user.model.User;
 
@@ -11,7 +15,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,29 +23,46 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "categories", uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "user_id", "name" })
-})
+@Table(name = "recurring_budgets")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class BudgetCategory extends BaseEntity {
+public class RecurringBudget extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 30)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
-    @Column(length = 100)
-    private String note;
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal amount;
+
+    private String description;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "budget_type", nullable = false)
     private BudgetType budgetType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private String frequency;
+
+    @Builder.Default
+    @Column(name = "frequency_interval")
+    private Integer frequencyInterval = 1;
+
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
+    private LocalDate endDate;
+
+    @Column(name = "next_occurrence", nullable = false)
+    private LocalDate nextOccurrence;
 
     @Builder.Default
     @Column(name = "is_active")

@@ -11,7 +11,7 @@ public class BudgetRequest {
     private String name;
     private Double amount;
     private BudgetType type;
-    private String categoryId;
+    private String budgetCategoryId;
     private LocalDate startDate;
     private LocalDate endDate;
 }
