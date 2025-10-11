@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "categories", uniqueConstraints = {
+@Table(name = "budget_categories", uniqueConstraints = {
         @UniqueConstraint(columnNames = { "user_id", "name" })
 })
 @Data
@@ -38,7 +38,7 @@ public class BudgetCategory extends BaseEntity {
     private String name;
 
     @Column(length = 100)
-    private String note;
+    private String notes;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "budget_type", nullable = false)

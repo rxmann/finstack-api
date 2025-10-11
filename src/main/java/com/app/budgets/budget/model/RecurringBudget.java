@@ -1,26 +1,13 @@
 package com.app.budgets.budget.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Locale.Category;
-
 import com.app.budgets.user.model.BaseEntity;
 import com.app.budgets.user.model.User;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "recurring_budgets")
@@ -37,7 +24,7 @@ public class RecurringBudget extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private BudgetCategory category;
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
@@ -48,7 +35,6 @@ public class RecurringBudget extends BaseEntity {
     @Column(name = "budget_type", nullable = false)
     private BudgetType budgetType;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private String frequency;
 

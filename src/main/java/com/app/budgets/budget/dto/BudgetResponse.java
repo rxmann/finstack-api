@@ -7,9 +7,11 @@ import java.math.BigDecimal;
 
 @Data
 public class BudgetResponse {
-    private Long id;
+    private String id;
     private String name;
+    private String description;
     private BigDecimal amount;
-    private BudgetType type;
-    private String categoryName;
+    private BudgetType budgetType;
+    private String budgetCategoryName;
+    private String budgetCategoryId;
 }

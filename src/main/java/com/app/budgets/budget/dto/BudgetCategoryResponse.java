@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class BudgetCategoryResponse {
     private String id;
     private String name;
-    private String description;
-    private BudgetType categoryType;
+    private String notes;
+    private BudgetType budgetType;
     private LocalDateTime lastModifiedAt;
 }

@@ -38,7 +38,7 @@ public class Budget extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "budget_category_id", nullable = false)
     private BudgetCategory budgetCategory;
 
     @Column(nullable = false, precision = 15, scale = 2)
@@ -51,7 +51,6 @@ public class Budget extends BaseEntity {
 
     private String receiptUrl;
 
-    @ElementCollection
     private List<String> tags;
 
     @Builder.Default
@@ -59,6 +58,6 @@ public class Budget extends BaseEntity {
     private Boolean isRecurring = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recurring_budget_id")
+    @JoinColumn(name = "recurring_budget_id", nullable = true)
     private RecurringBudget recurringBudget;
 }

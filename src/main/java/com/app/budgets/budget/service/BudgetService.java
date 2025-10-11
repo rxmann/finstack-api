@@ -37,4 +37,36 @@ public class BudgetService {
         var user = userAuth.getCurrentUser();
         return budgetRepository.findAllByUserId(user.getId()).stream().map(budgetMapper::toResponse).toList();
     }
+
+    public BudgetResponse getBudgetById(String budgetId) {
+        var user = userAuth.getCurrentUser();
+        var budget = budgetRepository.findByIdAndUserId(budgetId, user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Budget not found or access denied"));
+        return budgetMapper.toResponse(budget);
+    }
+
+    public BudgetResponse updateBudget(String budgetId, BudgetRequest request) {
+        var user = userAuth.getCurrentUser();
+
+        var budget = budgetRepository.findByIdAndUserId(budgetId, user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Budget not found or access denied"));
+
+        var budgetCategory = budgetCategoryRepository.findByIdAndUserIdAndIsActiveTrue(
+                request.getBudgetCategoryId(),
+                user.getId()
+        ).orElseThrow(() -> new IllegalArgumentException("Category not found or access denied"));
+
+        budgetMapper.updateEntity(request, budget);
+        budget.setBudgetCategory(budgetCategory);
+
+        var updated = budgetRepository.save(budget);
+        return budgetMapper.toResponse(updated);
+    }
+
+    public void deleteBudget(String budgetId) {
+        var user = userAuth.getCurrentUser();
+        var budget = budgetRepository.findByIdAndUserId(budgetId, user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Budget not found or access denied"));
+        budgetRepository.delete(budget);
+    }
 }
