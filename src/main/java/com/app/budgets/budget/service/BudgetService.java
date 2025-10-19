@@ -2,9 +2,11 @@ package com.app.budgets.budget.service;
 
 import com.app.budgets.budget.repository.BudgetCategoryRepository;
 import com.app.budgets.budget.repository.BudgetRepository;
+import com.app.budgets.budget.repository.RecurringBudgetRepository;
 import com.app.budgets.budget.dto.BudgetRequest;
 import com.app.budgets.budget.dto.BudgetResponse;
 import com.app.budgets.budget.mapper.BudgetMapper;
+import com.app.budgets.budget.model.RecurringBudget;
 import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.List;
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
+    private final RecurringBudgetRepository recurringBudgetRepository;
     private final BudgetCategoryRepository budgetCategoryRepository;
     private final BudgetMapper budgetMapper;
     private final UserAuth userAuth;
@@ -53,8 +56,7 @@ public class BudgetService {
 
         var budgetCategory = budgetCategoryRepository.findByIdAndUserIdAndIsActiveTrue(
                 request.getBudgetCategoryId(),
-                user.getId()
-        ).orElseThrow(() -> new IllegalArgumentException("Category not found or access denied"));
+                user.getId()).orElseThrow(() -> new IllegalArgumentException("Category not found or access denied"));
 
         budgetMapper.updateEntity(request, budget);
         budget.setBudgetCategory(budgetCategory);
@@ -68,5 +70,11 @@ public class BudgetService {
         var budget = budgetRepository.findByIdAndUserId(budgetId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Budget not found or access denied"));
         budgetRepository.delete(budget);
+    }
+
+    public List<RecurringBudget> getRecurringBudgets() {
+        var user = userAuth.getCurrentUser();
+        var recurringBudgets = recurringBudgetRepository.findAllByUserId(user.getId());
+        return recurringBudgets;
     }
 }

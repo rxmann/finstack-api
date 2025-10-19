@@ -1,11 +1,15 @@
 package com.app.budgets.budget.dto;
 
-import jakarta.validation.constraints.*;
-import lombok.Data;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 @Data
 public class BudgetRequest {
@@ -14,11 +18,14 @@ public class BudgetRequest {
     @Digits(integer = 13, fraction = 2, message = "Amount must have max 13 integer and 2 decimal digits")
     private BigDecimal amount;
 
+    @Size(max = 50, message = "Name must not exceed 500 characters")
+    private String name;
+
     @Size(max = 500, message = "Description must not exceed 500 characters")
     private String description;
 
     @NotNull(message = "Budget date is required")
-    private LocalDateTime budgetDate;
+    private Date budgetDate;
 
     @Size(max = 500, message = "Receipt URL must not exceed 500 characters")
     private String receiptUrl;

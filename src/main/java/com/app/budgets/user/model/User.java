@@ -5,6 +5,8 @@ import java.util.List;
 import com.app.budgets.auth.model.AuthProviderType;
 import com.app.budgets.budget.model.Budget;
 import com.app.budgets.budget.model.BudgetCategory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -58,8 +60,10 @@ public class User extends BaseEntity {
 
     // relations
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<BudgetCategory> budgetCategories;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Budget> budgets;
 }

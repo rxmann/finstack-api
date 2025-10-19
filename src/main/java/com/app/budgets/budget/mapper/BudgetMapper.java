@@ -1,11 +1,12 @@
 package com.app.budgets.budget.mapper;
 
-import com.app.budgets.budget.dto.BudgetRequest;
-import com.app.budgets.budget.dto.BudgetResponse;
-import com.app.budgets.budget.model.Budget;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+
+import com.app.budgets.budget.dto.BudgetRequest;
+import com.app.budgets.budget.dto.BudgetResponse;
+import com.app.budgets.budget.model.Budget;
 
 @Mapper(componentModel = "spring")
 public interface BudgetMapper {
@@ -13,8 +14,8 @@ public interface BudgetMapper {
 
     @Mapping(target = "name", source = "user.username")
     @Mapping(target = "budgetCategoryName", source = "budgetCategory.name")
-    @Mapping(target = "budgetCategoryId", source="budgetCategory.id")
-    @Mapping(target = "budgetType", source="budgetCategory.budgetType")
+    @Mapping(target = "budgetCategoryId", source = "budgetCategory.id")
+    @Mapping(target = "budgetType", source = "budgetCategory.budgetType")
     BudgetResponse toResponse(Budget budget);
 
     @Mapping(target = "id", ignore = true)

@@ -54,11 +54,15 @@ public class GlobalExceptionHandler {
     // Handle validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleException(MethodArgumentNotValidException ex,
-                                                             HttpServletRequest request) {
+            HttpServletRequest request) {
 
         Set<String> errors = new HashSet<>();
-        ex.getBindingResult().getAllErrors()
-                .forEach(err -> errors.add(err.getDefaultMessage()));
+
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.add(error.getField() + ": " + error.getDefaultMessage()));
+
+        ex.getBindingResult().getGlobalErrors()
+                .forEach(error -> errors.add(error.getObjectName() + ": " + error.getDefaultMessage()));
 
         var expResponse = ExceptionResponse.builder()
                 .errorCode(ErrorCodes.INVALID_INPUT.getCode())
@@ -108,7 +112,6 @@ public class GlobalExceptionHandler {
                                 .error(ex.getMessage())
                                 .build());
     }
-
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ExceptionResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
