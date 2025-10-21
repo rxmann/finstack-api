@@ -12,7 +12,6 @@ import com.app.budgets.budget.model.Budget;
 public interface BudgetMapper {
     Budget toEntity(BudgetRequest request);
 
-    @Mapping(target = "name", source = "user.username")
     @Mapping(target = "budgetCategoryName", source = "budgetCategory.name")
     @Mapping(target = "budgetCategoryId", source = "budgetCategory.id")
     @Mapping(target = "budgetType", source = "budgetCategory.budgetType")

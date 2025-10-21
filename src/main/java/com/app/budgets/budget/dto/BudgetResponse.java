@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 public class BudgetResponse {
     private String id;
     private String name;
-    private String description;
     private BigDecimal amount;
     private BudgetType budgetType;
     private String budgetCategoryName;

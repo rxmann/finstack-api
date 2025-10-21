@@ -68,7 +68,7 @@ public class BudgetController {
 
     // ----- Budgets -----
     @PostMapping
-    public ResponseEntity<BudgetResponse> createBudget(@RequestBody BudgetRequest request) {
+    public ResponseEntity<BudgetResponse> createBudget(@Valid @RequestBody BudgetRequest request) {
         return ResponseEntity.ok(budgetService.createBudget(request));
     }
 
@@ -98,7 +98,7 @@ public class BudgetController {
     // ----- Recurring Budgets -----
     @GetMapping("/recurring")
     public ResponseEntity<List<RecurringBudget>> getRecurringBudgets() {
-        var recurringBudget = budgetService.getRecurringBudgets();
+        var recurringBudget = recurringBudgetService.getRecurringBudgets();
         return ResponseEntity.ok(recurringBudget);
 
     }

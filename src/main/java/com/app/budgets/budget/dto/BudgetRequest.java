@@ -21,9 +21,6 @@ public class BudgetRequest {
     @Size(max = 50, message = "Name must not exceed 500 characters")
     private String name;
 
-    @Size(max = 500, message = "Description must not exceed 500 characters")
-    private String description;
-
     @NotNull(message = "Budget date is required")
     private Date budgetDate;
 

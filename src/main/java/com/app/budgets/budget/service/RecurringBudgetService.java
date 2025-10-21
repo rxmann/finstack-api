@@ -1,5 +1,6 @@
 package com.app.budgets.budget.service;
 
+import com.app.budgets.budget.model.RecurringBudget;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +11,8 @@ import com.app.budgets.budget.repository.BudgetCategoryRepository;
 import com.app.budgets.budget.repository.RecurringBudgetRepository;
 import com.app.budgets.user.UserAuth;
 import com.app.budgets.user.UserRepository;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -31,6 +34,13 @@ public class RecurringBudgetService {
         this.budgetCategoryRepository = budgetCategoryRepository;
         this.recurringBudgetMapper = recurringBudgetMapper;
         this.userAuth = userAuth;
+    }
+
+    public List<RecurringBudget> getRecurringBudgets() {
+
+        var user = userAuth.getCurrentUser();
+
+        return recurringBudgetRepository.findAllByUserId(user.getId());
     }
 
     public RecurringBudgetResponse createRecurringBudget(RecurringBudgetRequest request) {

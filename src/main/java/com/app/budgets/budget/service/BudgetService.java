@@ -18,7 +18,6 @@ import java.util.List;
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
-    private final RecurringBudgetRepository recurringBudgetRepository;
     private final BudgetCategoryRepository budgetCategoryRepository;
     private final BudgetMapper budgetMapper;
     private final UserAuth userAuth;
@@ -70,11 +69,5 @@ public class BudgetService {
         var budget = budgetRepository.findByIdAndUserId(budgetId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Budget not found or access denied"));
         budgetRepository.delete(budget);
-    }
-
-    public List<RecurringBudget> getRecurringBudgets() {
-        var user = userAuth.getCurrentUser();
-        var recurringBudgets = recurringBudgetRepository.findAllByUserId(user.getId());
-        return recurringBudgets;
     }
 }
