@@ -38,8 +38,16 @@ public interface PaymentReminderMapper {
     @Mapping(target = "lastModifiedBy", ignore = true)
     void updateEntity(PaymentReminderRequest request, @MappingTarget PaymentReminder paymentReminder);
 
+
     default Long calculateDaysUntilDue(LocalDate nextDueDate) {
-        return ChronoUnit.DAYS.between(LocalDate.now(), nextDueDate);
+        if (nextDueDate == null) {
+            return null;
+        }
+
+        LocalDate today = LocalDate.now();
+
+        // Return negative for overdue, 0 for today, positive for future
+        return ChronoUnit.DAYS.between(today, nextDueDate);
     }
 
     default Boolean shouldNotifyToday(PaymentReminder reminder) {

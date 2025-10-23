@@ -1,5 +1,6 @@
 package com.app.budgets.paymentreminder;
 
+import com.app.budgets.paymentreminder.dto.AcknowledgeReminderRequest;
 import com.app.budgets.paymentreminder.dto.PaymentReminderRequest;
 import com.app.budgets.paymentreminder.dto.PaymentReminderResponse;
 import com.app.budgets.paymentreminder.dto.UpdateReminderStatusRequest;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/payment-reminders")
+@RequestMapping("/payment-reminders")
 @RequiredArgsConstructor
 public class PaymentReminderController {
 
@@ -58,15 +59,6 @@ public class PaymentReminderController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<PaymentReminderResponse> updateReminderStatus(
-            @PathVariable String id,
-            @Validated @RequestBody UpdateReminderStatusRequest request)
-            throws Exception {
-        var response = paymentReminderService.updateReminderStatus(id, request);
-        return ResponseEntity.ok(response);
-    }
-
     @PatchMapping("/{id}/snooze")
     public ResponseEntity<PaymentReminderResponse> snoozeReminder(@PathVariable String id) throws Exception {
         var response = paymentReminderService.snoozeReminder(id);
@@ -74,8 +66,10 @@ public class PaymentReminderController {
     }
 
     @PatchMapping("/{id}/acknowledge")
-    public ResponseEntity<PaymentReminderResponse> acknowledgeReminder(@PathVariable String id) throws Exception {
-        var response = paymentReminderService.acknowledgeReminder(id);
+    public ResponseEntity<PaymentReminderResponse> acknowledgeReminder(
+            @PathVariable String id,
+            @Validated @RequestBody AcknowledgeReminderRequest request) throws Exception {
+        var response = paymentReminderService.acknowledgeReminder(id, request);
         return ResponseEntity.ok(response);
     }
 

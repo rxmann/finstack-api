@@ -1,7 +1,10 @@
 package com.app.budgets.paymentreminder.service;
 
+import com.app.budgets.budget.dto.BudgetRequest;
 import com.app.budgets.budget.repository.BudgetCategoryRepository;
+import com.app.budgets.budget.service.BudgetService;
 import com.app.budgets.common.enums.ReminderStatus;
+import com.app.budgets.paymentreminder.dto.AcknowledgeReminderRequest;
 import com.app.budgets.paymentreminder.dto.PaymentReminderRequest;
 import com.app.budgets.paymentreminder.dto.PaymentReminderResponse;
 import com.app.budgets.paymentreminder.dto.UpdateReminderStatusRequest;
@@ -10,6 +13,8 @@ import com.app.budgets.paymentreminder.repository.PaymentReminderRepository;
 import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +30,7 @@ public class PaymentReminderService {
     private final PaymentReminderMapper paymentReminderMapper;
     private final BudgetCategoryRepository budgetCategoryRepository;
     private final UserAuth userAuth;
+    private final BudgetService budgetService;
 
     @Transactional(readOnly = true)
     public List<PaymentReminderResponse> getAllPaymentReminders() throws Exception {
@@ -96,30 +102,6 @@ public class PaymentReminderService {
     }
 
     @Transactional
-    public PaymentReminderResponse updateReminderStatus(String id, UpdateReminderStatusRequest request) throws Exception {
-        var currentUser = userAuth.getCurrentUser();
-
-        var reminder = paymentReminderRepository.findById(id)
-                .orElseThrow(() -> new Exception("Payment reminder not found with id: " + id));
-
-        if (!reminder.getUser().getId().equals(currentUser.getId())) {
-            throw new Exception("You don't have permission to update this payment reminder");
-        }
-
-        reminder.setStatus(request.getStatus());
-
-        // If status is COMPLETED or user marks as done, calculate next occurrence
-        if (request.getStatus() == ReminderStatus.ACTIVE) {
-            calculateNextDueDate(reminder);
-        }
-
-        var updated = paymentReminderRepository.save(reminder);
-
-        log.info("Updated reminder status to {} for reminder: {}", request.getStatus(), id);
-        return paymentReminderMapper.toResponse(updated);
-    }
-
-    @Transactional
     public PaymentReminderResponse snoozeReminder(String id) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
@@ -130,7 +112,14 @@ public class PaymentReminderService {
             throw new Exception("You don't have permission to snooze this payment reminder");
         }
 
-        reminder.setStatus(ReminderStatus.SNOOZED);
+        if (reminder.getStatus().equals(ReminderStatus.SNOOZED)) {
+            reminder.setStatus(ReminderStatus.ACTIVE);
+        }
+        else {
+            reminder.setStatus(ReminderStatus.SNOOZED);
+        }
+
+
         reminder.setNextDueDate(reminder.getNextDueDate().plusDays(1)); // Snooze for 1 day
 
         var updated = paymentReminderRepository.save(reminder);
@@ -140,23 +129,33 @@ public class PaymentReminderService {
     }
 
     @Transactional
-    public PaymentReminderResponse acknowledgeReminder(String id) throws Exception {
+    public PaymentReminderResponse acknowledgeReminder(String id, AcknowledgeReminderRequest request) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
         var reminder = paymentReminderRepository.findById(id)
-                .orElseThrow(() -> new Exception("Payment reminder not found with id: " + id));
+                .orElseThrow(() -> new Exception("Payment reminder not found"));
 
         if (!reminder.getUser().getId().equals(currentUser.getId())) {
-            throw new Exception("You don't have permission to acknowledge this payment reminder");
+            throw new AccessDeniedException("Unauthorized");
         }
 
-        // Calculate next due date for recurring reminders
+        // CREATE BUDGET ENTRY
+        var budgetRequest = BudgetRequest.builder()
+                .amount(request.getAmount())
+                .name(request.getName())
+                .budgetDate(request.getBudgetDate())
+                .receiptUrl(request.getReceiptUrl())
+                .tags(request.getTags())
+                .budgetCategoryId(reminder.getBudgetCategory().getId())
+                .build();
+
+        budgetService.createBudget(budgetRequest);
+
+        // Calculate next due date
         calculateNextDueDate(reminder);
         reminder.setStatus(ReminderStatus.ACTIVE);
 
         var updated = paymentReminderRepository.save(reminder);
-
-        log.info("Acknowledged reminder and set next due date: {}", id);
         return paymentReminderMapper.toResponse(updated);
     }
 
