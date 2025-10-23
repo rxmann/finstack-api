@@ -5,7 +5,7 @@ import java.util.List;
 import com.app.budgets.auth.model.AuthProviderType;
 import com.app.budgets.budget.model.Budget;
 import com.app.budgets.budget.model.BudgetCategory;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.app.budgets.common.model.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;

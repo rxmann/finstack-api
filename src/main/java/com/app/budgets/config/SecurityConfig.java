@@ -3,7 +3,7 @@ package com.app.budgets.config;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import com.app.budgets.auth.filter.JwtAuthFilter;
-import com.app.budgets.handler.oauth2.OAuth2SuccessHandler;
+import com.app.budgets.exception.oauth2.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.app.budgets.handler.oauth2.RestOAuth2FailureHandler;
+import com.app.budgets.exception.oauth2.RestOAuth2FailureHandler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

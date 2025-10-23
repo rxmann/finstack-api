@@ -1,6 +1,7 @@
 package com.app.budgets.budget.model;
 
-import com.app.budgets.user.model.BaseEntity;
+import com.app.budgets.common.enums.BudgetFrequency;
+import com.app.budgets.common.model.BaseEntity;
 import com.app.budgets.user.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -41,7 +42,8 @@ public class RecurringBudget extends BaseEntity {
     private BudgetType budgetType;
 
     @Column(nullable = false)
-    private String frequency;
+    @Enumerated(EnumType.STRING)
+    private BudgetFrequency frequency;
 
     @Builder.Default
     @Column(name = "frequency_interval")

@@ -1,4 +1,4 @@
-package com.app.budgets.handler;
+package com.app.budgets.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

@@ -1,6 +1,6 @@
 package com.app.budgets.budget.model;
 
-import com.app.budgets.user.model.BaseEntity;
+import com.app.budgets.common.model.BaseEntity;
 import com.app.budgets.user.model.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 

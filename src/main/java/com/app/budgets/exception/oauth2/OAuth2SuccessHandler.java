@@ -1,4 +1,4 @@
-package com.app.budgets.handler.oauth2;
+package com.app.budgets.exception.oauth2;
 
 import java.io.IOException;
 

@@ -12,16 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.budgets.budget.dto.BudgetCategoryRequest;
-import com.app.budgets.budget.dto.BudgetCategoryResponse;
 import com.app.budgets.budget.dto.BudgetRequest;
 import com.app.budgets.budget.dto.BudgetResponse;
-import com.app.budgets.budget.dto.RecurringBudgetRequest;
-import com.app.budgets.budget.dto.RecurringBudgetResponse;
-import com.app.budgets.budget.model.RecurringBudget;
-import com.app.budgets.budget.service.BudgetCategoryService;
 import com.app.budgets.budget.service.BudgetService;
-import com.app.budgets.budget.service.RecurringBudgetService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,39 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BudgetController {
 
     private final BudgetService budgetService;
-    private final BudgetCategoryService budgetCategoryService;
-    private final RecurringBudgetService recurringBudgetService;
 
-    // ----- Budget Categories -----
-    @PostMapping("/categories")
-    public ResponseEntity<BudgetCategoryResponse> createCategory(@Valid @RequestBody BudgetCategoryRequest request) {
-        return ResponseEntity.ok(budgetCategoryService.createCategory(request));
-    }
-
-    @GetMapping("/categories")
-    public ResponseEntity<List<BudgetCategoryResponse>> getAllCategories() {
-        return ResponseEntity.ok(budgetCategoryService.getAllCategories());
-    }
-
-    @GetMapping("/categories/{categoryId}")
-    public ResponseEntity<BudgetCategoryResponse> getCategoryById(@PathVariable String categoryId) {
-        return ResponseEntity.ok(budgetCategoryService.getCategoryById(categoryId));
-    }
-
-    @PutMapping("/categories/{categoryId}")
-    public ResponseEntity<BudgetCategoryResponse> updateCategory(
-            @PathVariable String categoryId,
-            @Valid @RequestBody BudgetCategoryRequest request) {
-        return ResponseEntity.ok(budgetCategoryService.updateCategory(categoryId, request));
-    }
-
-    @DeleteMapping("/categories/{categoryId}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable String categoryId) {
-        budgetCategoryService.deleteCategory(categoryId);
-        return ResponseEntity.noContent().build();
-    }
-
-    // ----- Budgets -----
     @PostMapping
     public ResponseEntity<BudgetResponse> createBudget(@Valid @RequestBody BudgetRequest request) {
         return ResponseEntity.ok(budgetService.createBudget(request));
@@ -94,20 +55,4 @@ public class BudgetController {
         budgetService.deleteBudget(budgetId);
         return ResponseEntity.noContent().build();
     }
-
-    // ----- Recurring Budgets -----
-    @GetMapping("/recurring")
-    public ResponseEntity<List<RecurringBudget>> getRecurringBudgets() {
-        var recurringBudget = recurringBudgetService.getRecurringBudgets();
-        return ResponseEntity.ok(recurringBudget);
-
-    }
-
-    @PostMapping("/recurring")
-    public ResponseEntity<RecurringBudgetResponse> createRecurringBudget(
-            @Valid @RequestBody RecurringBudgetRequest request) {
-        var response = recurringBudgetService.createRecurringBudget(request);
-        return ResponseEntity.ok(response);
-    }
-
 }

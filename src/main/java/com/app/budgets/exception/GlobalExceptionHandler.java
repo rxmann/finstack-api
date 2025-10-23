@@ -1,7 +1,7 @@
-package com.app.budgets.handler;
+package com.app.budgets.exception;
 
-import com.app.budgets.handler.exceptions.UserAlreadyExistsException;
-import com.app.budgets.handler.exceptions.UserNotFoundException;
+import com.app.budgets.exception.exceptions.UserAlreadyExistsException;
+import com.app.budgets.exception.exceptions.UserNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.app.budgets.handler.ErrorCodes.BAD_CREDENTIALS;
+import static com.app.budgets.exception.ErrorCodes.BAD_CREDENTIALS;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
