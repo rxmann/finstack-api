@@ -34,8 +34,6 @@ public class SecurityConfig {
     private final RestOAuth2FailureHandler restOAuth2FailureHandler;
     private final ClientRegistrationRepository clientRegistrationRepository;
 
-    private final HandlerExceptionResolver handlerExceptionResolver;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -49,7 +47,16 @@ public class SecurityConfig {
                         .sessionCreationPolicy(STATELESS))
 
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/auth/**", "/public").permitAll()
+                        .requestMatchers(
+                                "/api-docs",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+//                                "/api/v1/api-docs/**",
+//                                "/api/v1/swagger-ui/**",
+//                                "/api/v1/swagger-ui.html",
+                                "/auth/**",
+                                "/public/**")
+                        .permitAll()
                         .anyRequest().authenticated())
 
                 // .authenticationProvider(authenticationProvider)

@@ -38,3 +38,10 @@ logging:
     org:
       springframework:
         security: DEBUG
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui
+    tags-sorter: none   # use 'none' to preserve order defined in the spec
+    doc-expansion: list

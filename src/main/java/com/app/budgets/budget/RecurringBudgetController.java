@@ -6,6 +6,7 @@ import com.app.budgets.budget.dto.groups.ValidationGroupsRecurringBudget.CreateR
 import com.app.budgets.budget.dto.groups.ValidationGroupsRecurringBudget.UpdateRecurringBudget;
 import com.app.budgets.budget.model.RecurringBudget;
 import com.app.budgets.budget.service.RecurringBudgetService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/budgets")
 @RequiredArgsConstructor
+@Tag(name = "Recurring Budget", description = "Recurring Budget management endpoints")
 public class RecurringBudgetController {
 
     private final RecurringBudgetService recurringBudgetService;

@@ -2,6 +2,7 @@ package com.app.budgets.budget;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/budgets")
 @RequiredArgsConstructor
+@Tag(name = "Budget Category", description = "Budget Categories management endpoints")
 public class BudgetCategoryController {
 
     private final BudgetCategoryService budgetCategoryService;
