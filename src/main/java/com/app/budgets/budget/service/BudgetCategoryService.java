@@ -9,6 +9,7 @@ import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class BudgetCategoryService {
     private final BudgetCategoryMapper categoryMapper;
     private final UserAuth userAuth;
 
+    @Transactional
     public BudgetCategoryResponse createCategory(BudgetCategoryRequest request) {
         var user = userAuth.getCurrentUser();
         // Check for duplicate category name per user
@@ -34,6 +36,7 @@ public class BudgetCategoryService {
         return categoryMapper.toResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<BudgetCategoryResponse> getAllCategories() {
         var user = userAuth.getCurrentUser();
         return categoryRepository.findAllByUserIdAndIsActiveTrue(user.getId())
@@ -42,6 +45,7 @@ public class BudgetCategoryService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public BudgetCategoryResponse getCategoryById(String categoryId) {
         var user = userAuth.getCurrentUser();
         var category = categoryRepository.findByIdAndUserIdAndIsActiveTrue(categoryId, user.getId())
@@ -49,6 +53,7 @@ public class BudgetCategoryService {
         return categoryMapper.toResponse(category);
     }
 
+    @Transactional
     public BudgetCategoryResponse updateCategory(String categoryId, BudgetCategoryRequest request) {
         var user = userAuth.getCurrentUser();
 
@@ -65,6 +70,7 @@ public class BudgetCategoryService {
         return categoryMapper.toResponse(updated);
     }
 
+    @Transactional
     public void deleteCategory(String categoryId) {
         var user = userAuth.getCurrentUser();
         var category = categoryRepository.findByIdAndUserIdAndIsActiveTrue(categoryId, user.getId())

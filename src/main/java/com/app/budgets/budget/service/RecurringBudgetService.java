@@ -40,6 +40,7 @@ public class RecurringBudgetService {
         this.userAuth = userAuth;
     }
 
+    @Transactional(readOnly = true)
     public List<RecurringBudget> getRecurringBudgets() {
 
         var user = userAuth.getCurrentUser();
@@ -61,6 +62,7 @@ public class RecurringBudgetService {
         return recurringBudgetMapper.toResponse(recurringBudget);
     }
 
+    @Transactional
     public RecurringBudgetResponse createRecurringBudget(RecurringBudgetRequest request) throws Exception {
         var currentUser = userAuth.getCurrentUser();
         var user = userRepository.findById(currentUser.getId())
@@ -79,6 +81,7 @@ public class RecurringBudgetService {
         return recurringBudgetMapper.toResponse(saved);
     }
 
+    @Transactional
     public RecurringBudgetResponse updateRecurringBudget(RecurringBudgetRequest request) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
@@ -103,7 +106,8 @@ public class RecurringBudgetService {
         return recurringBudgetMapper.toResponse(saved);
     }
 
-    private BudgetCategory findAndValidateCategory(String categoryId, String userId) throws Exception {
+    @Transactional
+    protected BudgetCategory findAndValidateCategory(String categoryId, String userId) throws Exception {
         var category = budgetCategoryRepository.findById(categoryId)
                 .orElseThrow();
 

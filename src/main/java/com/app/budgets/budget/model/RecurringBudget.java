@@ -4,7 +4,6 @@ import com.app.budgets.common.enums.BudgetFrequency;
 import com.app.budgets.common.model.BaseEntity;
 import com.app.budgets.user.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -37,10 +36,6 @@ public class RecurringBudget extends BaseEntity {
     private String name;
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "budget_type", nullable = false)
-    private BudgetType budgetType;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private BudgetFrequency frequency;
@@ -54,7 +49,7 @@ public class RecurringBudget extends BaseEntity {
 
     private LocalDate endDate;
 
-    @Column(name = "next_occurrence", nullable = false)
+    @Column(name = "next_occurrence", nullable = true)
     private LocalDate nextOccurrence;
 
     @Builder.Default

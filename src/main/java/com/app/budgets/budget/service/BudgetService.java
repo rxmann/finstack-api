@@ -10,6 +10,7 @@ import com.app.budgets.budget.model.RecurringBudget;
 import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class BudgetService {
     private final BudgetMapper budgetMapper;
     private final UserAuth userAuth;
 
+    @Transactional
     public BudgetResponse createBudget(BudgetRequest request) {
         var user = userAuth.getCurrentUser();
         var budget = budgetMapper.toEntity(request);
@@ -35,11 +37,13 @@ public class BudgetService {
         return budgetMapper.toResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<BudgetResponse> getAllBudgets() {
         var user = userAuth.getCurrentUser();
         return budgetRepository.findAllByUserId(user.getId()).stream().map(budgetMapper::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public BudgetResponse getBudgetById(String budgetId) {
         var user = userAuth.getCurrentUser();
         var budget = budgetRepository.findByIdAndUserId(budgetId, user.getId())
@@ -47,6 +51,7 @@ public class BudgetService {
         return budgetMapper.toResponse(budget);
     }
 
+    @Transactional
     public BudgetResponse updateBudget(String budgetId, BudgetRequest request) {
         var user = userAuth.getCurrentUser();
 
@@ -64,6 +69,7 @@ public class BudgetService {
         return budgetMapper.toResponse(updated);
     }
 
+    @Transactional
     public void deleteBudget(String budgetId) {
         var user = userAuth.getCurrentUser();
         var budget = budgetRepository.findByIdAndUserId(budgetId, user.getId())

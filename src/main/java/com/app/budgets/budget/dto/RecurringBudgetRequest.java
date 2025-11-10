@@ -40,9 +40,6 @@ public class RecurringBudgetRequest {
 
     private String description;
 
-    @NotNull(message = "Budget type is required", groups = { CreateRecurringBudget.class, UpdateRecurringBudget.class })
-    private BudgetType budgetType;
-
     @NotNull(message = "Frequency is required", groups = { CreateRecurringBudget.class, UpdateRecurringBudget.class })
     private BudgetFrequency frequency;
 
