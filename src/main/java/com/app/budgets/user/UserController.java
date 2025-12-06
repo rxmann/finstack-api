@@ -2,6 +2,8 @@ package com.app.budgets.user;
 
 import java.util.List;
 
+import com.app.budgets.budget.dto.RecurringBudgetResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,8 +17,8 @@ import com.app.budgets.user.model.User;
 @RequestMapping("/users")
 public class UserController {
 
-    private UserService userService;
-    private UserMapper userMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     UserController(UserMapper userMapper, UserService userService) {
         this.userService = userService;
@@ -24,8 +26,8 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        var users = userService.getAllUsers();
+    public ResponseEntity<List<User>> getUsers(Pageable pageable) {
+        var users = userService.getAllUsers(pageable);
         return ResponseEntity.ok(users);
     }
 

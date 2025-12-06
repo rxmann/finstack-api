@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +28,8 @@ public class BudgetController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BudgetResponse>> getAllBudgets() {
-        return ResponseEntity.ok(budgetService.getAllBudgets());
+    public ResponseEntity<List<BudgetResponse>> getAllBudgets(Pageable pageable) {
+        return ResponseEntity.ok(budgetService.getAllBudgets(pageable));
     }
 
     @GetMapping("/{budgetId}")

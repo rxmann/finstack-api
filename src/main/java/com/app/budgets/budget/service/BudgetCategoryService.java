@@ -3,11 +3,11 @@ package com.app.budgets.budget.service;
 import com.app.budgets.budget.dto.BudgetCategoryRequest;
 import com.app.budgets.budget.dto.BudgetCategoryResponse;
 import com.app.budgets.budget.mapper.BudgetCategoryMapper;
-import com.app.budgets.budget.model.BudgetCategory;
 import com.app.budgets.budget.repository.BudgetCategoryRepository;
 import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,9 +37,9 @@ public class BudgetCategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetCategoryResponse> getAllCategories() {
+    public List<BudgetCategoryResponse> getAllCategories(Pageable pageable) {
         var user = userAuth.getCurrentUser();
-        return categoryRepository.findAllByUserIdAndIsActiveTrue(user.getId())
+        return categoryRepository.findAllByUserIdAndIsActiveTrue(user.getId(), pageable)
                 .stream()
                 .map(categoryMapper::toResponse)
                 .toList();

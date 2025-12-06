@@ -1,14 +1,13 @@
 package com.app.budgets.budget.service;
 
-import com.app.budgets.budget.repository.BudgetCategoryRepository;
-import com.app.budgets.budget.repository.BudgetRepository;
-import com.app.budgets.budget.repository.RecurringBudgetRepository;
 import com.app.budgets.budget.dto.BudgetRequest;
 import com.app.budgets.budget.dto.BudgetResponse;
 import com.app.budgets.budget.mapper.BudgetMapper;
-import com.app.budgets.budget.model.RecurringBudget;
+import com.app.budgets.budget.repository.BudgetCategoryRepository;
+import com.app.budgets.budget.repository.BudgetRepository;
 import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,9 +37,9 @@ public class BudgetService {
     }
 
     @Transactional(readOnly = true)
-    public List<BudgetResponse> getAllBudgets() {
+    public List<BudgetResponse> getAllBudgets(Pageable pageable) {
         var user = userAuth.getCurrentUser();
-        return budgetRepository.findAllByUserId(user.getId()).stream().map(budgetMapper::toResponse).toList();
+        return budgetRepository.findAllByUserId(user.getId(), pageable).stream().map(budgetMapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)

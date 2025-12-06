@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +18,7 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategory, 
 
     boolean existsByUserIdAndName(String userId, String name);
 
-    List<BudgetCategory> findAllByUserIdAndIsActiveTrue(String id);
+    Page<BudgetCategory> findAllByUserIdAndIsActiveTrue(String id, Pageable pageable);
 
     Optional<BudgetCategory> findByIdAndUserIdAndIsActiveTrue(String categoryId, String userId);
 

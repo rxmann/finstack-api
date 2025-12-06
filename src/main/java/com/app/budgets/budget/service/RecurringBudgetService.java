@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,11 +42,11 @@ public class RecurringBudgetService {
     }
 
     @Transactional(readOnly = true)
-    public List<RecurringBudget> getRecurringBudgets() {
+    public List<RecurringBudgetResponse> getRecurringBudgets(Pageable pageable) {
 
         var user = userAuth.getCurrentUser();
 
-        return recurringBudgetRepository.findAllByUserId(user.getId());
+        return recurringBudgetRepository.findAllByUserId(user.getId(), pageable).stream().map(recurringBudgetMapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)

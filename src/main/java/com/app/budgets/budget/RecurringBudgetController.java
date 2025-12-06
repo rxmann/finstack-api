@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,8 @@ public class RecurringBudgetController {
     private final RecurringBudgetService recurringBudgetService;
 
     @GetMapping("/recurring")
-    public ResponseEntity<List<RecurringBudget>> getRecurringBudgets() {
-        var recurringBudget = recurringBudgetService.getRecurringBudgets();
+    public ResponseEntity<List<RecurringBudgetResponse>> getRecurringBudgets(Pageable pageable) {
+        var recurringBudget = recurringBudgetService.getRecurringBudgets(pageable);
         return ResponseEntity.ok(recurringBudget);
     }
 
