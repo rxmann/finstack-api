@@ -29,11 +29,9 @@ public interface PaymentReminderRepository extends JpaRepository<PaymentReminder
             @Param("endDate") LocalDate endDate
     );
 
-    @Query("SELECT pr FROM PaymentReminder pr WHERE pr.user = :user " +
-            "AND pr.status = 'ACTIVE' " +
+    @Query("SELECT pr FROM PaymentReminder pr WHERE pr.status = 'ACTIVE' " +
             "AND (pr.nextDueDate = :threeDaysFromNow OR pr.nextDueDate = :oneDayFromNow OR pr.nextDueDate = :today)")
     List<PaymentReminder> findRemindersToNotify(
-            @Param("user") User user,
             @Param("today") LocalDate today,
             @Param("oneDayFromNow") LocalDate oneDayFromNow,
             @Param("threeDaysFromNow") LocalDate threeDaysFromNow

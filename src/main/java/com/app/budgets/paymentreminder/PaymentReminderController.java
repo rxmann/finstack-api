@@ -6,6 +6,8 @@ import com.app.budgets.paymentreminder.dto.PaymentReminderResponse;
 import com.app.budgets.paymentreminder.dto.UpdateReminderStatusRequest;
 import com.app.budgets.paymentreminder.dto.groups.ValidationGroupsPaymentReminder.CreatePaymentReminder;
 import com.app.budgets.paymentreminder.dto.groups.ValidationGroupsPaymentReminder.UpdatePaymentReminder;
+import com.app.budgets.paymentreminder.mapper.PaymentReminderMapper;
+import com.app.budgets.paymentreminder.model.PaymentReminder;
 import com.app.budgets.paymentreminder.service.PaymentReminderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import java.util.List;
 public class PaymentReminderController {
 
     private final PaymentReminderService paymentReminderService;
+    private final PaymentReminderMapper paymentReminderMapper;
 
     @GetMapping
     public ResponseEntity<List<PaymentReminderResponse>> getAllPaymentReminders() throws Exception {
@@ -35,8 +38,8 @@ public class PaymentReminderController {
 
     @GetMapping("/notifications")
     public ResponseEntity<List<PaymentReminderResponse>> getRemindersToNotify() throws Exception {
-        var response = paymentReminderService.getRemindersToNotify();
-        return ResponseEntity.ok(response);
+        List<PaymentReminder> paymentReminderList = paymentReminderService.getRemindersToNotify();
+        return ResponseEntity.ok(paymentReminderList.stream().map(paymentReminderMapper::toResponse).toList());
     }
 
     @PostMapping

@@ -1,23 +1,22 @@
 package com.app.budgets.budget.service;
 
-import java.time.LocalDate;
-import java.util.List;
-
+import com.app.budgets.budget.dto.RecurringBudgetRequest;
+import com.app.budgets.budget.dto.RecurringBudgetResponse;
+import com.app.budgets.budget.mapper.RecurringBudgetMapper;
+import com.app.budgets.budget.model.BudgetCategory;
+import com.app.budgets.budget.repository.BudgetCategoryRepository;
+import com.app.budgets.budget.repository.RecurringBudgetRepository;
+import com.app.budgets.common.enums.BudgetFrequency;
+import com.app.budgets.user.UserAuth;
+import com.app.budgets.user.UserRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.app.budgets.budget.dto.RecurringBudgetRequest;
-import com.app.budgets.budget.dto.RecurringBudgetResponse;
-import com.app.budgets.budget.mapper.RecurringBudgetMapper;
-import com.app.budgets.budget.model.BudgetCategory;
-import com.app.budgets.common.enums.BudgetFrequency;
-import com.app.budgets.budget.model.RecurringBudget;
-import com.app.budgets.budget.repository.BudgetCategoryRepository;
-import com.app.budgets.budget.repository.RecurringBudgetRepository;
-import com.app.budgets.user.UserAuth;
-import com.app.budgets.user.UserRepository;
+import java.time.LocalDate;
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -29,11 +28,7 @@ public class RecurringBudgetService {
     private final RecurringBudgetMapper recurringBudgetMapper;
     private final UserAuth userAuth;
 
-    public RecurringBudgetService(RecurringBudgetRepository recurringBudgetRepository,
-                                  UserRepository userRepository,
-                                  BudgetCategoryRepository budgetCategoryRepository,
-                                  RecurringBudgetMapper recurringBudgetMapper,
-                                  UserAuth userAuth) {
+    public RecurringBudgetService(RecurringBudgetRepository recurringBudgetRepository, UserRepository userRepository, BudgetCategoryRepository budgetCategoryRepository, RecurringBudgetMapper recurringBudgetMapper, UserAuth userAuth) {
         this.recurringBudgetRepository = recurringBudgetRepository;
         this.userRepository = userRepository;
         this.budgetCategoryRepository = budgetCategoryRepository;
@@ -53,8 +48,7 @@ public class RecurringBudgetService {
     public RecurringBudgetResponse getRecurringBudget(String id) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var recurringBudget = recurringBudgetRepository.findById(id)
-                .orElseThrow(() -> new Exception("Recurring budget not found with id: " + id));
+        var recurringBudget = recurringBudgetRepository.findById(id).orElseThrow(() -> new Exception("Recurring budget not found with id: " + id));
 
         if (!recurringBudget.getUser().getId().equals(currentUser.getId())) {
             throw new Exception("You don't have permission to view this recurring budget");
@@ -66,17 +60,14 @@ public class RecurringBudgetService {
     @Transactional
     public RecurringBudgetResponse createRecurringBudget(RecurringBudgetRequest request) throws Exception {
         var currentUser = userAuth.getCurrentUser();
-        var user = userRepository.findById(currentUser.getId())
-                .orElseThrow();
+        var user = userRepository.findById(currentUser.getId()).orElseThrow();
 
         var category = findAndValidateCategory(request.getBudgetCategoryId(), user.getId());
 
         var recurringBudget = recurringBudgetMapper.toEntity(request);
         recurringBudget.setUser(user);
         recurringBudget.setBudgetCategory(category);
-        recurringBudget.setNextOccurrence(
-                calculateNextOccurrence(request.getStartDate(), request.getFrequency(),
-                        request.getFrequencyInterval()));
+        recurringBudget.setNextOccurrence(calculateNextOccurrence(request.getStartDate(), request.getFrequency()));
 
         var saved = recurringBudgetRepository.save(recurringBudget);
         return recurringBudgetMapper.toResponse(saved);
@@ -86,8 +77,7 @@ public class RecurringBudgetService {
     public RecurringBudgetResponse updateRecurringBudget(RecurringBudgetRequest request) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var existingBudget = recurringBudgetRepository.findById(request.getId())
-                .orElseThrow();
+        var existingBudget = recurringBudgetRepository.findById(request.getId()).orElseThrow();
 
         // Security: verify ownership
         if (!existingBudget.getUser().getId().equals(currentUser.getId())) {
@@ -99,9 +89,7 @@ public class RecurringBudgetService {
         // Update entity
         recurringBudgetMapper.updateEntity(request, existingBudget);
         existingBudget.setBudgetCategory(category);
-        existingBudget.setNextOccurrence(
-                calculateNextOccurrence(request.getStartDate(), request.getFrequency(),
-                        request.getFrequencyInterval()));
+        existingBudget.setNextOccurrence(calculateNextOccurrence(request.getStartDate(), request.getFrequency()));
 
         var saved = recurringBudgetRepository.save(existingBudget);
         return recurringBudgetMapper.toResponse(saved);
@@ -109,8 +97,7 @@ public class RecurringBudgetService {
 
     @Transactional
     protected BudgetCategory findAndValidateCategory(String categoryId, String userId) throws Exception {
-        var category = budgetCategoryRepository.findById(categoryId)
-                .orElseThrow();
+        var category = budgetCategoryRepository.findById(categoryId).orElseThrow();
 
         if (!category.getUser().getId().equals(userId)) {
             throw new Exception("Cannot use another user's category");
@@ -119,18 +106,22 @@ public class RecurringBudgetService {
         return category;
     }
 
-    private LocalDate calculateNextOccurrence(LocalDate startDate, BudgetFrequency frequency, Integer interval) {
+    private LocalDate calculateNextOccurrence(LocalDate startDate, BudgetFrequency frequency) {
         LocalDate now = LocalDate.now();
         if (startDate.isAfter(now)) {
             return startDate;
         }
 
+        return getLocalDate(now, frequency);
+    }
+
+    public static LocalDate getLocalDate(LocalDate fromDate, BudgetFrequency frequency) {
         return switch (frequency) {
-            case DAILY -> now.plusDays(interval);
-            case WEEKLY -> now.plusWeeks(interval);
-            case MONTHLY -> now.plusMonths(interval);
-            case YEARLY -> now.plusYears(interval);
-            case QUARTERLY -> now.plusMonths(3);
+            case DAILY -> fromDate.plusDays(1);
+            case WEEKLY -> fromDate.plusWeeks(1);
+            case MONTHLY -> fromDate.plusMonths(1);
+            case YEARLY -> fromDate.plusYears(1);
+            case QUARTERLY -> fromDate.plusMonths(3);
             case ONE_TIME -> null;
         };
     }
@@ -140,8 +131,7 @@ public class RecurringBudgetService {
     public RecurringBudgetResponse disableRecurringBudget(String id) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var recurringBudget = recurringBudgetRepository.findById(id)
-                .orElseThrow(() -> new Exception("Recurring budget not found with id: " + id));
+        var recurringBudget = recurringBudgetRepository.findById(id).orElseThrow(() -> new Exception("Recurring budget not found with id: " + id));
 
         // Verify ownership
         if (!recurringBudget.getUser().getId().equals(currentUser.getId())) {
@@ -163,8 +153,7 @@ public class RecurringBudgetService {
     public RecurringBudgetResponse enableRecurringBudget(String id) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var recurringBudget = recurringBudgetRepository.findById(id)
-                .orElseThrow(() -> new Exception("Recurring budget not found with id: " + id));
+        var recurringBudget = recurringBudgetRepository.findById(id).orElseThrow(() -> new Exception("Recurring budget not found with id: " + id));
 
         // Verify ownership
         if (!recurringBudget.getUser().getId().equals(currentUser.getId())) {
@@ -186,8 +175,7 @@ public class RecurringBudgetService {
     public void deleteRecurringBudget(String id) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var recurringBudget = recurringBudgetRepository.findById(id)
-                .orElseThrow(() -> new Exception("Recurring budget not found with id: " + id));
+        var recurringBudget = recurringBudgetRepository.findById(id).orElseThrow(() -> new Exception("Recurring budget not found with id: " + id));
 
         // Verify ownership
         if (!recurringBudget.getUser().getId().equals(currentUser.getId())) {
@@ -196,9 +184,6 @@ public class RecurringBudgetService {
 
         recurringBudgetRepository.delete(recurringBudget);
     }
-
-
-
 
 
 }

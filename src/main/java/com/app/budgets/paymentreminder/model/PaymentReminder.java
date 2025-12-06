@@ -22,6 +22,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
+@ToString(exclude = {"user", "budgetCategory"})
 public class PaymentReminder extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

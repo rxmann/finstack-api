@@ -7,13 +7,12 @@ import com.app.budgets.common.enums.ReminderStatus;
 import com.app.budgets.paymentreminder.dto.AcknowledgeReminderRequest;
 import com.app.budgets.paymentreminder.dto.PaymentReminderRequest;
 import com.app.budgets.paymentreminder.dto.PaymentReminderResponse;
-import com.app.budgets.paymentreminder.dto.UpdateReminderStatusRequest;
 import com.app.budgets.paymentreminder.mapper.PaymentReminderMapper;
+import com.app.budgets.paymentreminder.model.PaymentReminder;
 import com.app.budgets.paymentreminder.repository.PaymentReminderRepository;
 import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,10 +35,7 @@ public class PaymentReminderService {
     public List<PaymentReminderResponse> getAllPaymentReminders() throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        return paymentReminderRepository.findByUserIdOrderByNextDueDateAsc(currentUser.getId())
-                .stream()
-                .map(paymentReminderMapper::toResponse)
-                .toList();
+        return paymentReminderRepository.findByUserIdOrderByNextDueDateAsc(currentUser.getId()).stream().map(paymentReminderMapper::toResponse).toList();
     }
 
     @Transactional(readOnly = true)
@@ -49,10 +45,7 @@ public class PaymentReminderService {
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusDays(30); // Next 30 days
 
-        return paymentReminderRepository.findUpcomingReminders(currentUser, today, endDate)
-                .stream()
-                .map(paymentReminderMapper::toResponse)
-                .toList();
+        return paymentReminderRepository.findUpcomingReminders(currentUser, today, endDate).stream().map(paymentReminderMapper::toResponse).toList();
     }
 
     @Transactional
@@ -63,8 +56,7 @@ public class PaymentReminderService {
         reminder.setUser(currentUser);
 
         if (request.getCategoryId() != null) {
-            var category = budgetCategoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new Exception("Budget category not found with id: " + request.getCategoryId()));
+            var category = budgetCategoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new Exception("Budget category not found with id: " + request.getCategoryId()));
             reminder.setBudgetCategory(category);
         }
 
@@ -78,8 +70,7 @@ public class PaymentReminderService {
     public PaymentReminderResponse updatePaymentReminder(PaymentReminderRequest request) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var reminder = paymentReminderRepository.findById(request.getId())
-                .orElseThrow(() -> new Exception("Payment reminder not found with id: " + request.getId()));
+        var reminder = paymentReminderRepository.findById(request.getId()).orElseThrow(() -> new Exception("Payment reminder not found with id: " + request.getId()));
 
         if (!reminder.getUser().getId().equals(currentUser.getId())) {
             throw new Exception("You don't have permission to update this payment reminder");
@@ -88,8 +79,7 @@ public class PaymentReminderService {
         paymentReminderMapper.updateEntity(request, reminder);
 
         if (request.getCategoryId() != null) {
-            var category = budgetCategoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new Exception("Budget category not found with id: " + request.getCategoryId()));
+            var category = budgetCategoryRepository.findById(request.getCategoryId()).orElseThrow(() -> new Exception("Budget category not found with id: " + request.getCategoryId()));
             reminder.setBudgetCategory(category);
         } else {
             reminder.setBudgetCategory(null);
@@ -105,8 +95,7 @@ public class PaymentReminderService {
     public PaymentReminderResponse snoozeReminder(String id) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var reminder = paymentReminderRepository.findById(id)
-                .orElseThrow(() -> new Exception("Payment reminder not found with id: " + id));
+        var reminder = paymentReminderRepository.findById(id).orElseThrow(() -> new Exception("Payment reminder not found with id: " + id));
 
         if (!reminder.getUser().getId().equals(currentUser.getId())) {
             throw new Exception("You don't have permission to snooze this payment reminder");
@@ -114,8 +103,7 @@ public class PaymentReminderService {
 
         if (reminder.getStatus().equals(ReminderStatus.SNOOZED)) {
             reminder.setStatus(ReminderStatus.ACTIVE);
-        }
-        else {
+        } else {
             reminder.setStatus(ReminderStatus.SNOOZED);
         }
 
@@ -132,22 +120,14 @@ public class PaymentReminderService {
     public PaymentReminderResponse acknowledgeReminder(String id, AcknowledgeReminderRequest request) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var reminder = paymentReminderRepository.findById(id)
-                .orElseThrow(() -> new Exception("Payment reminder not found"));
+        var reminder = paymentReminderRepository.findById(id).orElseThrow(() -> new Exception("Payment reminder not found"));
 
         if (!reminder.getUser().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("Unauthorized");
         }
 
         // CREATE BUDGET ENTRY
-        var budgetRequest = BudgetRequest.builder()
-                .amount(request.getAmount())
-                .name(request.getName())
-                .budgetDate(request.getBudgetDate())
-                .receiptUrl(request.getReceiptUrl())
-                .tags(request.getTags())
-                .budgetCategoryId(reminder.getBudgetCategory().getId())
-                .build();
+        var budgetRequest = BudgetRequest.builder().amount(request.getAmount()).name(request.getName()).budgetDate(request.getBudgetDate()).receiptUrl(request.getReceiptUrl()).tags(request.getTags()).budgetCategoryId(reminder.getBudgetCategory().getId()).build();
 
         budgetService.createBudget(budgetRequest);
 
@@ -163,8 +143,7 @@ public class PaymentReminderService {
     public void deletePaymentReminder(String id) throws Exception {
         var currentUser = userAuth.getCurrentUser();
 
-        var reminder = paymentReminderRepository.findById(id)
-                .orElseThrow(() -> new Exception("Payment reminder not found with id: " + id));
+        var reminder = paymentReminderRepository.findById(id).orElseThrow(() -> new Exception("Payment reminder not found with id: " + id));
 
         if (!reminder.getUser().getId().equals(currentUser.getId())) {
             throw new Exception("You don't have permission to delete this payment reminder");
@@ -175,17 +154,12 @@ public class PaymentReminderService {
     }
 
     @Transactional(readOnly = true)
-    public List<PaymentReminderResponse> getRemindersToNotify() throws Exception {
-        var currentUser = userAuth.getCurrentUser();
-
+    public List<PaymentReminder> getRemindersToNotify() throws Exception {
         LocalDate today = LocalDate.now();
         LocalDate oneDayFromNow = today.plusDays(1);
         LocalDate threeDaysFromNow = today.plusDays(3);
 
-        return paymentReminderRepository.findRemindersToNotify(currentUser, today, oneDayFromNow, threeDaysFromNow)
-                .stream()
-                .map(paymentReminderMapper::toResponse)
-                .toList();
+        return paymentReminderRepository.findRemindersToNotify(today, oneDayFromNow, threeDaysFromNow);
     }
 
     private void calculateNextDueDate(com.app.budgets.paymentreminder.model.PaymentReminder reminder) {
