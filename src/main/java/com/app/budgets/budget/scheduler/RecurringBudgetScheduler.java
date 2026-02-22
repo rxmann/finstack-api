@@ -8,7 +8,6 @@ import com.app.budgets.common.enums.BudgetFrequency;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,7 +17,6 @@ import static com.app.budgets.budget.service.RecurringBudgetService.getLocalDate
 @Service
 @Slf4j
 public class RecurringBudgetScheduler {
-
     private final RecurringBudgetRepository recurringBudgetRepository;
     private final BudgetService budgetService;
 
@@ -27,9 +25,8 @@ public class RecurringBudgetScheduler {
         this.budgetService = budgetService;
     }
 
-    //    @Scheduled(cron = "10 0 0 * * *")
-    @Scheduled(initialDelay = 1000, fixedDelay = 10000)
-    @Transactional
+    @Scheduled(cron = "10 0 0 * * *")
+//    @Scheduled(initialDelay = 1000, fixedDelay = 10000)
     public void processRecurringBudgets() {
 
         log.info("Processing recurring budgets");
