@@ -1,5 +1,7 @@
 package com.app.budgets.dashboard;
 
+import com.app.budgets.budget.dto.BudgetSummary;
+import com.app.budgets.budget.dto.RecurringMetrics;
 import com.app.budgets.budget.model.BudgetType;
 import com.app.budgets.budget.repository.BudgetRepository;
 import com.app.budgets.budget.repository.RecurringBudgetRepository;
@@ -19,7 +21,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.app.budgets.budget.model.BudgetType.*;
 
@@ -27,71 +28,67 @@ import static com.app.budgets.budget.model.BudgetType.*;
 @Service
 @RequiredArgsConstructor
 public class DashboardAnalyticsService {
+    private static final Set<BudgetType> INCOME_TYPES =
+            Set.of(INCOME, SAVINGS, INVESTMENT, LOAN);
+    private static final Set<BudgetType> EXPENSE_TYPES =
+            Set.of(EXPENSE, LEND, EXTRA);
     private final BudgetRepository budgetRepository;
     private final RecurringBudgetRepository recurringBudgetRepository;
     private final PaymentReminderRepository paymentReminderRepository;
     private final UserAuth userAuth;
 
-    private static final Set<BudgetType> INCOME_TYPES =
-            Set.of(INCOME, SAVINGS, INVESTMENT, LOAN);
     public Optional<DashboardResponseDTO> getDashboardAnalytics(DashboardRequestDTO requestDTO) {
         var user = userAuth.getCurrentUser();
         log.info("Getting dashboard analytics for filter {}", requestDTO.toString());
-        var dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
+        DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
         log.info("Date Range result: {}", dateRange);
-        var result = buildIncomeMetric(user.getId(), dateRange);
-        log.info("Income metric result: {}", result);
-        return Optional.ofNullable(DashboardResponseDTO.builder().income(result).build());
-    }
+        BudgetSummary summary = budgetRepository.sumBudgetByUser(
+                user.getId(),
+                dateRange.startDate(),
+                dateRange.endDate(),
+                dateRange.prevStartDate(),
+                dateRange.prevEndDate(),
+                INCOME_TYPES,
+                EXPENSE_TYPES
+        );
 
-    private MetricCard buildIncomeMetric(String userId, DateRange range) {
+        // TODO: recurring and reminder metrics
+        RecurringMetrics recurring = budgetRepository.getRecurringMetrics(user.getId(), dateRange.startDate(), dateRange.endDate());
+        MetricCard recurringMetricCard = MetricCard.builder().current(recurring.getCount()).net(recurring.getSum()).build();
 
-        BigDecimal current = budgetRepository
-                .sumByUserAndDateRangeAndType(
-                        userId,
-                        range.startDate(),
-                        range.endDate(),
-                        INCOME_TYPES
-                );
-
-        BigDecimal previous = budgetRepository
-                .sumByUserAndDateRangeAndType(
-                        userId,
-                        range.prevStartDate(),
-                        range.prevEndDate(),
-                        INCOME_TYPES
-                );
-
-        return buildMetricCard(current, previous);
+        return Optional.of(DashboardResponseDTO.builder()
+                .income(buildMetricCard(summary.getCurrentIncome(), summary.getPreviousIncome()))
+                .expense(buildMetricCard(summary.getCurrentExpense(), summary.getPreviousExpense()))
+                .recurring(recurringMetricCard)
+                .build());
     }
 
     private MetricCard buildMetricCard(BigDecimal current, BigDecimal previous) {
-        // 1. Handle nulls gracefully
         BigDecimal curr = Optional.ofNullable(current).orElse(BigDecimal.ZERO);
         BigDecimal prev = Optional.ofNullable(previous).orElse(BigDecimal.ZERO);
 
-        log.info("Processing MetricCard - Current: {}, Previous: {}", curr, prev);
-
-        // 2. Determine Trend using compareTo
-        // compareTo returns: -1 (less than), 0 (equal), 1 (greater than)
         int comparison = curr.compareTo(prev);
-        Trend trend = (comparison > 0) ? Trend.UP : (comparison < 0) ? Trend.DOWN : Trend.FLAT;
+        Trend trend = (comparison > 0) ? Trend.UP :
+                (comparison < 0) ? Trend.DOWN :
+                        Trend.FLAT;
 
-        // 3. Calculate Percentage Change
         Integer pctChange = calculatePercentageChange(curr, prev);
 
-        String message = String.format("Trend is %s with a %d%% change", trend, pctChange);
-
-        return new MetricCard(curr, prev, trend, message, pctChange);
+        return MetricCard.builder()
+                .current(curr)
+                .previous(prev)
+                .percentageChange(pctChange)
+                .trend(trend)
+                .message(String.format("Trend is %s with a %d%% change", trend.getValue(), pctChange))
+                .build();
     }
 
     private Integer calculatePercentageChange(BigDecimal current, BigDecimal previous) {
         if (previous.compareTo(BigDecimal.ZERO) == 0) {
             return current.compareTo(BigDecimal.ZERO) > 0 ? 100 : 0;
         }
-
         return current.subtract(previous)
-                .divide(previous, 2, RoundingMode.HALF_UP)
+                .divide(previous, 2, RoundingMode.HALF_EVEN)
                 .multiply(BigDecimal.valueOf(100))
                 .intValue();
     }

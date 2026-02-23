@@ -1,19 +1,21 @@
 package com.app.budgets.budget.repository;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
+import com.app.budgets.budget.dto.BudgetSummary;
+import com.app.budgets.budget.dto.RecurringMetrics;
+import com.app.budgets.budget.model.Budget;
 import com.app.budgets.budget.model.BudgetType;
+import com.app.budgets.common.enums.DateRange;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.app.budgets.budget.model.Budget;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface BudgetRepository extends JpaRepository<Budget, String> {
@@ -22,16 +24,50 @@ public interface BudgetRepository extends JpaRepository<Budget, String> {
     Optional<Budget> findByIdAndUserId(String budgetId, String id);
 
     @Query("""
-                SELECT COALESCE(SUM(b.amount), 0)
+                SELECT 
+                    COALESCE(SUM(CASE 
+                        WHEN b.budgetDate >= :currentStart AND b.budgetDate < :currentEnd 
+                        AND b.budgetCategory.budgetType IN :incomeTypes 
+                        THEN b.amount ELSE 0 END), 0) AS currentIncome,
+                    COALESCE(SUM(CASE 
+                        WHEN b.budgetDate >= :prevStart AND b.budgetDate < :prevEnd 
+                        AND b.budgetCategory.budgetType IN :incomeTypes 
+                        THEN b.amount ELSE 0 END), 0) AS previousIncome,
+                    COALESCE(SUM(CASE 
+                        WHEN b.budgetDate >= :currentStart AND b.budgetDate < :currentEnd 
+                        AND b.budgetCategory.budgetType IN :expenseTypes 
+                        THEN b.amount ELSE 0 END), 0) AS currentExpense,
+                    COALESCE(SUM(CASE 
+                        WHEN b.budgetDate >= :prevStart AND b.budgetDate < :prevEnd 
+                        AND b.budgetCategory.budgetType IN :expenseTypes 
+                        THEN b.amount ELSE 0 END), 0) AS previousExpense
                 FROM Budget b
                 WHERE b.user.id = :userId
-                  AND b.budgetDate BETWEEN :start AND :end
-                  AND b.budgetCategory.budgetType IN :types
             """)
-    BigDecimal sumByUserAndDateRangeAndType(
-            String userId,
-            LocalDateTime start,
-            LocalDateTime end,
-            Set<BudgetType> types
+    BudgetSummary sumBudgetByUser(
+            @Param("userId") String userId,
+            @Param("currentStart") LocalDateTime currentStart,
+            @Param("currentEnd") LocalDateTime currentEnd,
+            @Param("prevStart") LocalDateTime prevStart,
+            @Param("prevEnd") LocalDateTime prevEnd,
+            @Param("incomeTypes") Set<BudgetType> incomeTypes,
+            @Param("expenseTypes") Set<BudgetType> expenseTypes
+    );
+
+
+    @Query("""
+                SELECT 
+                    COUNT(b) as count,
+                    COALESCE(SUM(b.amount), 0) as sum
+                FROM Budget b
+                WHERE b.user.id = :userId
+                  AND b.recurringBudget IS NOT NULL
+                  AND b.budgetDate >= :currentStart
+                  AND b.budgetDate < :currentEnd
+            """)
+    RecurringMetrics getRecurringMetrics(
+            @Param("userId") String userId,
+            @Param("currentStart") LocalDateTime currentStart,
+            @Param("currentEnd") LocalDateTime currentEnd
     );
 }

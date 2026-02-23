@@ -9,6 +9,7 @@ import com.app.budgets.budget.repository.BudgetCategoryRepository;
 import com.app.budgets.budget.repository.BudgetRepository;
 import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
@@ -41,6 +43,7 @@ public class BudgetService {
     @Transactional(readOnly = true)
     public List<BudgetResponse> getAllBudgets(Pageable pageable) {
         var user = userAuth.getCurrentUser();
+        log.info(pageable.toString());
         return budgetRepository.findAllByUserId(user.getId(), pageable).stream().map(budgetMapper::toResponse).toList();
     }
 

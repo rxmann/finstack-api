@@ -5,6 +5,7 @@ import com.app.budgets.dashboard.dto.DashboardFilter;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
@@ -13,37 +14,40 @@ import java.time.temporal.TemporalAdjusters;
 public class FilterUtil {
 
     public static DateRange calculateDates(DashboardFilter filter) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime startDate;
-        LocalDateTime prevStartDate;
-        LocalDateTime prevEndDate;
+        LocalDate today = LocalDate.now();
+        LocalDate currentStart;
+        LocalDate prevStart;
 
         switch (filter) {
             case THIS_WEEK -> {
-                startDate = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY)).with(LocalTime.MIN);
-                prevStartDate = startDate.minusWeeks(1);
-                prevEndDate = startDate.minusNanos(1);
+                currentStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+                prevStart = currentStart.minusWeeks(1);
             }
             case THIS_MONTH -> {
-                startDate = now.with(TemporalAdjusters.firstDayOfMonth()).with(LocalTime.MIN);
-                prevStartDate = startDate.minusMonths(1);
-                prevEndDate = startDate.minusNanos(1);
+                currentStart = today.with(TemporalAdjusters.firstDayOfMonth());
+                prevStart = currentStart.minusMonths(1);
             }
+
             case THIS_QUARTER -> {
-                int month = now.getMonthValue();
+                int month = today.getMonthValue();
                 int quarterStartMonth = ((month - 1) / 3) * 3 + 1;
-                startDate = LocalDateTime.of(now.getYear(), quarterStartMonth, 1, 0, 0);
-                prevStartDate = startDate.minusMonths(3);
-                prevEndDate = startDate.minusNanos(1);
+                currentStart = LocalDate.of(today.getYear(), quarterStartMonth, 1);
+                prevStart = currentStart.minusMonths(3);
             }
+
             case THIS_YEAR -> {
-                startDate = now.with(TemporalAdjusters.firstDayOfYear()).with(LocalTime.MIN);
-                prevStartDate = startDate.minusYears(1);
-                prevEndDate = startDate.minusNanos(1);
+                currentStart = today.with(TemporalAdjusters.firstDayOfYear());
+                prevStart = currentStart.minusYears(1);
             }
+
             default -> throw new IllegalArgumentException("Invalid Filter");
         }
 
-        return new DateRange(startDate, now, prevStartDate, prevEndDate);
+        return new DateRange(
+                currentStart.atStartOfDay(),
+                today.plusDays(1).atStartOfDay(),
+                prevStart.atStartOfDay(),
+                currentStart.atStartOfDay()
+        );
     }
 }
