@@ -4,6 +4,5 @@ import java.math.BigDecimal;
 
 public interface RecurringMetrics {
     BigDecimal getCount();
-
     BigDecimal getSum();
 }

@@ -4,7 +4,6 @@ import com.app.budgets.budget.dto.BudgetSummary;
 import com.app.budgets.budget.dto.RecurringMetrics;
 import com.app.budgets.budget.model.Budget;
 import com.app.budgets.budget.model.BudgetType;
-import com.app.budgets.common.enums.DateRange;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,7 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -65,7 +63,7 @@ public interface BudgetRepository extends JpaRepository<Budget, String> {
                   AND b.budgetDate >= :currentStart
                   AND b.budgetDate < :currentEnd
             """)
-    RecurringMetrics getRecurringMetrics(
+    RecurringMetrics getGeneratedRecurringBudget(
             @Param("userId") String userId,
             @Param("currentStart") LocalDateTime currentStart,
             @Param("currentEnd") LocalDateTime currentEnd

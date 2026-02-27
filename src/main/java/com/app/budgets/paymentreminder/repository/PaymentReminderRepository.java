@@ -2,6 +2,7 @@ package com.app.budgets.paymentreminder.repository;
 
 
 import com.app.budgets.common.enums.ReminderStatus;
+import com.app.budgets.dashboard.dto.ReminderMetrics;
 import com.app.budgets.paymentreminder.model.PaymentReminder;
 import com.app.budgets.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,5 +39,14 @@ public interface PaymentReminderRepository extends JpaRepository<PaymentReminder
     );
 
 
-
+    @Query("""
+          SELECT
+                SUM(case when pr.nextDueDate < CURRENT DATE and pr.status = 'ACTIVE' then 1 else 0 END) as overdue,
+                SUM(case when pr.nextDueDate between current date   and current date  + 7 day AND pr.status = 'ACTIVE' THEN 1 ELSE 0 END) as dueSoon,
+                SUM(case when pr.status = 'ACTIVE' then 1 else 0 end) as total,
+                MIN(pr.nextDueDate) as nextDueDate
+          FROM PaymentReminder pr
+          where pr.user.id = :userId
+          """)
+    ReminderMetrics getReminderMetrics(String userId);
 }

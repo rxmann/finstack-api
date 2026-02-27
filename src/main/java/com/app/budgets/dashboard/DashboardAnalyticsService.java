@@ -6,10 +6,7 @@ import com.app.budgets.budget.model.BudgetType;
 import com.app.budgets.budget.repository.BudgetRepository;
 import com.app.budgets.budget.repository.RecurringBudgetRepository;
 import com.app.budgets.common.enums.DateRange;
-import com.app.budgets.dashboard.dto.DashboardRequestDTO;
-import com.app.budgets.dashboard.dto.DashboardResponseDTO;
-import com.app.budgets.dashboard.dto.MetricCard;
-import com.app.budgets.dashboard.dto.Trend;
+import com.app.budgets.dashboard.dto.*;
 import com.app.budgets.paymentreminder.repository.PaymentReminderRepository;
 import com.app.budgets.user.UserAuth;
 import com.app.budgets.util.FilterUtil;
@@ -40,8 +37,9 @@ public class DashboardAnalyticsService {
     public Optional<DashboardResponseDTO> getDashboardAnalytics(DashboardRequestDTO requestDTO) {
         var user = userAuth.getCurrentUser();
         log.info("Getting dashboard analytics for filter {}", requestDTO.toString());
+
         DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
-        log.info("Date Range result: {}", dateRange);
+
         BudgetSummary summary = budgetRepository.sumBudgetByUser(
                 user.getId(),
                 dateRange.startDate(),
@@ -52,15 +50,56 @@ public class DashboardAnalyticsService {
                 EXPENSE_TYPES
         );
 
-        // TODO: recurring and reminder metrics
-        RecurringMetrics recurring = budgetRepository.getRecurringMetrics(user.getId(), dateRange.startDate(), dateRange.endDate());
-        MetricCard recurringMetricCard = MetricCard.builder().current(recurring.getCount()).net(recurring.getSum()).build();
+        RecurringMetrics recurring = budgetRepository.getGeneratedRecurringBudget(user.getId(), dateRange.startDate(), dateRange.endDate());
+        ReminderMetrics reminders = paymentReminderRepository.getReminderMetrics(user.getId());
+
+        MetricCard incomeCard = buildMetricCard(summary.getCurrentIncome(), summary.getPreviousIncome());
+        MetricCard expenseCard = buildMetricCard(summary.getCurrentExpense(), summary.getPreviousExpense());
+        MetricCard recurringCard = buildRecurringCard(recurring);
+        MetricCard reminderCard = buildReminderCard(reminders);
+
+        BigDecimal net = BigDecimal.ZERO;
+        if (summary.getCurrentIncome() != null) net = net.add(summary.getCurrentIncome());
+        if (summary.getCurrentExpense() != null) net = net.subtract(summary.getCurrentExpense());
+
 
         return Optional.of(DashboardResponseDTO.builder()
-                .income(buildMetricCard(summary.getCurrentIncome(), summary.getPreviousIncome()))
-                .expense(buildMetricCard(summary.getCurrentExpense(), summary.getPreviousExpense()))
-                .recurring(recurringMetricCard)
+                .income(incomeCard)
+                .expense(expenseCard)
+                .recurring(recurringCard)
+                .net(net.intValue())
                 .build());
+    }
+
+
+    private MetricCard buildRecurringCard(RecurringMetrics recurring) {
+        BigDecimal amount = Optional.ofNullable(recurring.getSum())
+                .orElse(BigDecimal.ZERO);
+        BigDecimal count = Optional.ofNullable(recurring.getCount()).orElse(BigDecimal.valueOf(0));
+
+        return MetricCard.builder()
+                .current(amount)
+                .message(String.format("%d payments due this period", count))
+                .build();
+    }
+
+    private MetricCard buildReminderCard(ReminderMetrics reminders) {
+        Long overdue = Optional.ofNullable(reminders.getOverdue()).orElse(0L);
+        Long dueSoon = Optional.ofNullable(reminders.getDueSoon()).orElse(0L);
+
+        String message;
+        if (overdue > 0) {
+            message = String.format("%d overdue, %d due soon", overdue, dueSoon);
+        } else if (dueSoon > 0) {
+            message = String.format("%d due this week", dueSoon);
+        } else {
+            message = "All on track";
+        }
+
+        return MetricCard.builder()
+                .current(BigDecimal.valueOf(reminders.getTotal() != null ? reminders.getTotal() : 0))
+                .message(message)
+                .build();
     }
 
     private MetricCard buildMetricCard(BigDecimal current, BigDecimal previous) {
