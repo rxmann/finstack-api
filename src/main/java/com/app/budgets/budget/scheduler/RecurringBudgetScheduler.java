@@ -25,7 +25,7 @@ public class RecurringBudgetScheduler {
         this.budgetService = budgetService;
     }
 
-    @Scheduled(cron = "10 0 0 * * *")
+    //    @Scheduled(cron = "10 0 0 * * *")
 //    @Scheduled(initialDelay = 1000, fixedDelay = 10000)
     public void processRecurringBudgets() {
 
@@ -33,12 +33,18 @@ public class RecurringBudgetScheduler {
         LocalDate today = LocalDate.now();
         List<RecurringBudget> dueBudgets = recurringBudgetRepository.findDueRecurringBudgets(today);
 
+        if (dueBudgets.isEmpty()) {
+            log.warn("No recurring budgets found for today");
+            return;
+        }
+
         dueBudgets.forEach(rBudget -> {
             try {
                 log.info("Processing recurring budget: {}", rBudget.getId());
 
                 // 1 Create actual budget for today
-                budgetService.createBudgetFromRecurring(rBudget);
+                var createBudgetResult = budgetService.createBudgetFromRecurring(rBudget);
+                log.info(createBudgetResult.toString());
 
                 // 2 Calculate next occurrence
                 LocalDate next = calculateNextOccurrence(rBudget.getNextOccurrence(), rBudget.getFrequency());
@@ -46,6 +52,7 @@ public class RecurringBudgetScheduler {
 
                 // 3 Save update
                 recurringBudgetRepository.save(rBudget);
+                log.info("Recurring budget {} scheduled  at: {]", rBudget.getId(), next.toString());
 
             } catch (Exception e) {
                 log.error("Failed to process recurring budget {}: {}", rBudget.getId(), e.getMessage(), e);

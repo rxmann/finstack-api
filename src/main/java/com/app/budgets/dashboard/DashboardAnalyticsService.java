@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Set;
 
@@ -55,8 +56,8 @@ public class DashboardAnalyticsService {
 
         MetricCard incomeCard = buildMetricCard(summary.getCurrentIncome(), summary.getPreviousIncome());
         MetricCard expenseCard = buildMetricCard(summary.getCurrentExpense(), summary.getPreviousExpense());
-        MetricCard recurringCard = buildRecurringCard(recurring);
-        MetricCard reminderCard = buildReminderCard(reminders);
+        RecurringMetricCard recurringCard = buildRecurringCard(recurring);
+        ReminderMetricCard reminderCard = buildReminderCard(reminders);
 
         BigDecimal net = BigDecimal.ZERO;
         if (summary.getCurrentIncome() != null) net = net.add(summary.getCurrentIncome());
@@ -67,39 +68,46 @@ public class DashboardAnalyticsService {
                 .income(incomeCard)
                 .expense(expenseCard)
                 .recurring(recurringCard)
+                .reminders(reminderCard)
                 .net(net.intValue())
                 .build());
     }
 
 
-    private MetricCard buildRecurringCard(RecurringMetrics recurring) {
+    private RecurringMetricCard buildRecurringCard(RecurringMetrics recurring) {
         BigDecimal amount = Optional.ofNullable(recurring.getSum())
                 .orElse(BigDecimal.ZERO);
-        BigDecimal count = Optional.ofNullable(recurring.getCount()).orElse(BigDecimal.valueOf(0));
 
-        return MetricCard.builder()
-                .current(amount)
-                .message(String.format("%d payments due this period", count))
+        return RecurringMetricCard.builder()
+                .totalSum(amount)
+                .totalCount(recurring.getCount())
+                .message(String.format("%d payments due this period", recurring.getCount()))
                 .build();
     }
 
-    private MetricCard buildReminderCard(ReminderMetrics reminders) {
-        Long overdue = Optional.ofNullable(reminders.getOverdue()).orElse(0L);
-        Long dueSoon = Optional.ofNullable(reminders.getDueSoon()).orElse(0L);
-
-        String message;
-        if (overdue > 0) {
-            message = String.format("%d overdue, %d due soon", overdue, dueSoon);
-        } else if (dueSoon > 0) {
-            message = String.format("%d due this week", dueSoon);
-        } else {
-            message = "All on track";
-        }
-
-        return MetricCard.builder()
-                .current(BigDecimal.valueOf(reminders.getTotal() != null ? reminders.getTotal() : 0))
-                .message(message)
+    private ReminderMetricCard buildReminderCard(ReminderMetrics reminder) {
+        return ReminderMetricCard.builder()
+                .overdueCount(reminder.getOverdue())
+                .dueSoonCount(reminder.getDueSoon())
+                .totalReminders(reminder.getTotal())
+                .nextDueDate(reminder.getNextDueDate())
+                .message(generateStatusMessage(reminder))
                 .build();
+    }
+
+    private String generateStatusMessage(ReminderMetrics reminder) {
+        int overdue = reminder.getOverdue();
+        int dueSoon = reminder.getDueSoon();
+        if (overdue > 0) {
+            return String.format("%d item%s overdue", overdue, overdue > 1 ? "s" : "");
+        }
+        if (dueSoon > 0) {
+            String date = reminder.getNextDueDate() != null
+                    ? reminder.getNextDueDate().format(DateTimeFormatter.ofPattern("MMM d"))
+                    : "soon";
+            return String.format("%d item%s due %s", dueSoon, dueSoon > 1 ? "s" : "", date);
+        }
+        return "All on track";
     }
 
     private MetricCard buildMetricCard(BigDecimal current, BigDecimal previous) {

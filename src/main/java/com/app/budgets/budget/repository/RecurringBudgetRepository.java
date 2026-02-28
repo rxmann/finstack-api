@@ -17,6 +17,7 @@ public interface RecurringBudgetRepository extends JpaRepository<RecurringBudget
 
     @Query("""
                 SELECT r FROM RecurringBudget r
+                            join fetch r.budgetCategory 
                 WHERE r.isActive = true 
                   AND r.nextOccurrence <= :today
             """)

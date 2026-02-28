@@ -84,9 +84,19 @@ public class BudgetService {
         // Map recurring budget to BudgetRequest
         BudgetRequest request = BudgetRequest.builder().amount(rBudget.getAmount()).name(rBudget.getName()).budgetDate(java.sql.Date.valueOf(rBudget.getNextOccurrence())).budgetCategoryId(category.getId()).build();
 
-        Budget budget = Budget.builder().amount(request.getAmount()).name(request.getName()).budgetDate(LocalDateTime.now()).budgetCategory(category).user(user).receiptUrl(request.getReceiptUrl()).tags(request.getTags()).build();
+        Budget budget = Budget.builder()
+                .amount(request.getAmount())
+                .name(request.getName())
+                .budgetDate(LocalDateTime.now())
+                .budgetCategory(category)
+                .recurringBudget(rBudget)
+                .user(user)
+                .receiptUrl(request.getReceiptUrl())
+                .tags(request.getTags())
+                .build();
 
         Budget saved = budgetRepository.save(budget);
+        log.info("Saved budget {} from recurring budget: {}", budget.getId(), rBudget.getId());
 
         return budgetMapper.toResponse(saved);
     }

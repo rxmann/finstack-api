@@ -8,7 +8,7 @@ import lombok.Data;
 public class DashboardResponseDTO {
     private MetricCard income;
     private MetricCard expense;
-    private MetricCard recurring;
-    private MetricCard reminders;
+    private RecurringMetricCard recurring;
+    private ReminderMetricCard reminders;
     private Integer net;
 }
