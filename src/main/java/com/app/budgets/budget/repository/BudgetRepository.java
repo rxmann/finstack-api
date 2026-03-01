@@ -1,7 +1,8 @@
 package com.app.budgets.budget.repository;
 
-import com.app.budgets.budget.dto.BudgetSummary;
-import com.app.budgets.budget.dto.RecurringMetrics;
+import com.app.budgets.dashboard.dto.BudgetSummary;
+import com.app.budgets.dashboard.dto.CashFlow;
+import com.app.budgets.dashboard.dto.RecurringMetrics;
 import com.app.budgets.budget.model.Budget;
 import com.app.budgets.budget.model.BudgetType;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -67,5 +69,50 @@ public interface BudgetRepository extends JpaRepository<Budget, String> {
             @Param("userId") String userId,
             @Param("currentStart") LocalDateTime currentStart,
             @Param("currentEnd") LocalDateTime currentEnd
+    );
+
+    @Query(value = """
+            WITH date_filler AS (
+                SELECT generate_series(
+                    date_trunc('month', CAST(:startDate AS timestamp)),
+                    date_trunc('month', CAST(:endDate AS timestamp) - interval '1 day'),
+                    interval '1 month'
+                ) AS period
+            ),
+            base_data AS (
+                SELECT
+                    date_trunc('month', b.budget_date) AS period,
+                    SUM(
+                        CASE
+                            WHEN bc.budget_type IN ('INCOME','SAVINGS','INVESTMENT','LOAN')
+                            THEN b.amount ELSE 0
+                        END
+                    ) AS income_amount,
+                    SUM(
+                        CASE
+                            WHEN bc.budget_type IN ('EXPENSE','LEND','EXTRA')
+                            THEN b.amount ELSE 0
+                        END
+                    ) AS expense_amount
+                FROM budgets b
+                JOIN budget_categories bc ON bc.id = b.budget_category_id
+                WHERE b.user_id = :userId
+                  AND b.budget_date >= :startDate
+                  AND b.budget_date < :endDate
+                GROUP BY 1
+            )
+            SELECT
+                to_char(df.period, 'Mon YYYY') AS dateRange,
+                df.period::date AS period,
+                COALESCE(bd.income_amount, 0) AS incomeAmount,
+                COALESCE(bd.expense_amount, 0) AS expenseAmount
+            FROM date_filler df
+            LEFT JOIN base_data bd ON bd.period = df.period
+            ORDER BY df.period
+            """, nativeQuery = true)
+    List<CashFlow> getCashFlowData(
+            @Param("userId") String userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
     );
 }

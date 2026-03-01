@@ -1,4 +1,4 @@
-package com.app.budgets.budget.dto;
+package com.app.budgets.dashboard.dto;
 
 import java.math.BigDecimal;
 

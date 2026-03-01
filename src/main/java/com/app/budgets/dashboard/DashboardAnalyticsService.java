@@ -1,7 +1,7 @@
 package com.app.budgets.dashboard;
 
-import com.app.budgets.budget.dto.BudgetSummary;
-import com.app.budgets.budget.dto.RecurringMetrics;
+import com.app.budgets.dashboard.dto.BudgetSummary;
+import com.app.budgets.dashboard.dto.RecurringMetrics;
 import com.app.budgets.budget.model.BudgetType;
 import com.app.budgets.budget.repository.BudgetRepository;
 import com.app.budgets.budget.repository.RecurringBudgetRepository;
@@ -10,6 +10,7 @@ import com.app.budgets.dashboard.dto.*;
 import com.app.budgets.paymentreminder.repository.PaymentReminderRepository;
 import com.app.budgets.user.UserAuth;
 import com.app.budgets.util.FilterUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -37,7 +39,7 @@ public class DashboardAnalyticsService {
 
     public Optional<DashboardResponseDTO> getDashboardAnalytics(DashboardRequestDTO requestDTO) {
         var user = userAuth.getCurrentUser();
-        log.info("Getting dashboard analytics for filter {}", requestDTO.toString());
+        log.info("Getting dashboard MetricsAnalytics for filter {}", requestDTO.toString());
 
         DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
 
@@ -74,6 +76,25 @@ public class DashboardAnalyticsService {
     }
 
 
+    public List<CashFlowResponseDTO> getCashflowAnalytics(@Valid DashboardRequestDTO requestDTO) {
+        var user = userAuth.getCurrentUser();
+        log.info("Getting dashboard CashFlowAnalytics for filter {}", requestDTO.toString());
+        DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
+
+        List<CashFlow> cashFlowAnalyticsData = budgetRepository.getCashFlowData(user.getId(), dateRange.startDate(), dateRange.endDate());
+        log.info("CashFlow Response: {}", cashFlowAnalyticsData);
+        return cashFlowAnalyticsData.stream().map(r -> CashFlowResponseDTO.builder()
+                .dateRange(r.getDateRange())
+                .period(r.getPeriod())
+                .expenseAmount(r.getExpenseAmount())
+                .incomeAmount(r.getIncomeAmount())
+                .build()
+        ).toList();
+    }
+
+    /**
+     * HELPERS
+     */
     private RecurringMetricCard buildRecurringCard(RecurringMetrics recurring) {
         BigDecimal amount = Optional.ofNullable(recurring.getSum())
                 .orElse(BigDecimal.ZERO);
