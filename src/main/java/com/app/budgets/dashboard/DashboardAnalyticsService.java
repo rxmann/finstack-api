@@ -1,12 +1,10 @@
 package com.app.budgets.dashboard;
 
-import com.app.budgets.dashboard.dto.BudgetSummary;
-import com.app.budgets.dashboard.dto.RecurringMetrics;
 import com.app.budgets.budget.model.BudgetType;
 import com.app.budgets.budget.repository.BudgetRepository;
-import com.app.budgets.budget.repository.RecurringBudgetRepository;
 import com.app.budgets.common.enums.DateRange;
 import com.app.budgets.dashboard.dto.*;
+import com.app.budgets.dashboard.services.GranularityResolver;
 import com.app.budgets.paymentreminder.repository.PaymentReminderRepository;
 import com.app.budgets.user.UserAuth;
 import com.app.budgets.util.FilterUtil;
@@ -33,7 +31,6 @@ public class DashboardAnalyticsService {
     private static final Set<BudgetType> EXPENSE_TYPES =
             Set.of(EXPENSE, LEND, EXTRA);
     private final BudgetRepository budgetRepository;
-    private final RecurringBudgetRepository recurringBudgetRepository;
     private final PaymentReminderRepository paymentReminderRepository;
     private final UserAuth userAuth;
 
@@ -80,8 +77,16 @@ public class DashboardAnalyticsService {
         var user = userAuth.getCurrentUser();
         log.info("Getting dashboard CashFlowAnalytics for filter {}", requestDTO.toString());
         DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
+       Granularity granularity = GranularityResolver.resolveGranularity(requestDTO.getFilter());
 
-        List<CashFlow> cashFlowAnalyticsData = budgetRepository.getCashFlowData(user.getId(), dateRange.startDate(), dateRange.endDate());
+        List<CashFlow> cashFlowAnalyticsData = budgetRepository.getCashFlowData(
+                user.getId(),
+                granularity.getInterval(),
+                granularity.getTruncUnit(),
+                granularity.getLabelFormat(),
+                dateRange.startDate(),
+                dateRange.endDate()
+        );
         log.info("CashFlow Response: {}", cashFlowAnalyticsData);
         return cashFlowAnalyticsData.stream().map(r -> CashFlowResponseDTO.builder()
                 .dateRange(r.getDateRange())
