@@ -1,20 +1,16 @@
 package com.app.budgets.budget.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import com.app.budgets.common.model.BaseEntity;
+import com.app.budgets.dashboard.dto.CashFlowResponseDTO;
 import com.app.budgets.user.model.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +19,20 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+
+
+@SqlResultSetMapping(
+        name = "CashFlowMapping",
+        classes = @ConstructorResult(
+                targetClass = CashFlowResponseDTO.class,
+                columns = {
+                        @ColumnResult(name = "dateRange", type = String.class),
+                        @ColumnResult(name = "period", type = LocalDate.class),
+                        @ColumnResult(name = "incomeAmount", type = BigDecimal.class),
+                        @ColumnResult(name = "expenseAmount", type = BigDecimal.class)
+                }
+        )
+)
 @Entity
 @Table(name = "budgets", indexes = {
         @Index(name = "idx_user_budget_date", columnList = "user_id, budget_date")

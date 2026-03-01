@@ -77,24 +77,8 @@ public class DashboardAnalyticsService {
         var user = userAuth.getCurrentUser();
         log.info("Getting dashboard CashFlowAnalytics for filter {}", requestDTO.toString());
         DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
-       Granularity granularity = GranularityResolver.resolveGranularity(requestDTO.getFilter());
-
-        List<CashFlow> cashFlowAnalyticsData = budgetRepository.getCashFlowData(
-                user.getId(),
-                granularity.getInterval(),
-                granularity.getTruncUnit(),
-                granularity.getLabelFormat(),
-                dateRange.startDate(),
-                dateRange.endDate()
-        );
-        log.info("CashFlow Response: {}", cashFlowAnalyticsData);
-        return cashFlowAnalyticsData.stream().map(r -> CashFlowResponseDTO.builder()
-                .dateRange(r.getDateRange())
-                .period(r.getPeriod())
-                .expenseAmount(r.getExpenseAmount())
-                .incomeAmount(r.getIncomeAmount())
-                .build()
-        ).toList();
+        Granularity granularity = GranularityResolver.resolveGranularity(requestDTO.getFilter());
+        return budgetRepository.getCashFlowData(user.getId(), granularity, dateRange.startDate(), dateRange.endDate());
     }
 
     /**
