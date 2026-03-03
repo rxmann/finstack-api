@@ -2,7 +2,7 @@ package com.app.budgets.paymentreminder.repository;
 
 
 import com.app.budgets.common.enums.ReminderStatus;
-import com.app.budgets.dashboard.dto.ReminderMetrics;
+import com.app.budgets.dashboard.dto.metric.ReminderMetrics;
 import com.app.budgets.paymentreminder.model.PaymentReminder;
 import com.app.budgets.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

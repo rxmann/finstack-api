@@ -1,4 +1,4 @@
-package com.app.budgets.dashboard.dto;
+package com.app.budgets.dashboard.dto.request;
 
 public enum DashboardFilter {
     THIS_WEEK,

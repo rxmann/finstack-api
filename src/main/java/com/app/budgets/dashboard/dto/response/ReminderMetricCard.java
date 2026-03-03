@@ -1,4 +1,4 @@
-package com.app.budgets.dashboard.dto;
+package com.app.budgets.dashboard.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

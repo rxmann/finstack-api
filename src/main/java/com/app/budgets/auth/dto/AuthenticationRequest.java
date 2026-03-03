@@ -1,13 +1,15 @@
 package com.app.budgets.auth.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequestDto {
-    private String username;
+@AllArgsConstructor
+@Builder
+public class AuthenticationRequest {
+    private String email;
     private String password;
 }

@@ -1,6 +1,6 @@
 package com.app.budgets.dashboard.services;
 
-import com.app.budgets.dashboard.dto.DashboardFilter;
+import com.app.budgets.dashboard.dto.request.DashboardFilter;
 import com.app.budgets.dashboard.dto.Granularity;
 import org.springframework.stereotype.Service;
 

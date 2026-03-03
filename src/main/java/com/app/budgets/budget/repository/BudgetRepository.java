@@ -2,8 +2,12 @@ package com.app.budgets.budget.repository;
 
 import com.app.budgets.budget.model.Budget;
 import com.app.budgets.budget.model.BudgetType;
-import com.app.budgets.dashboard.dto.BudgetSummary;
-import com.app.budgets.dashboard.dto.RecurringMetrics;
+import com.app.budgets.common.enums.DateRange;
+import com.app.budgets.dashboard.dto.Granularity;
+import com.app.budgets.dashboard.dto.metric.BudgetComposition;
+import com.app.budgets.dashboard.dto.metric.BudgetSummary;
+import com.app.budgets.dashboard.dto.metric.RecurringMetrics;
+import com.app.budgets.dashboard.dto.treemap.TreeMapResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +16,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -69,4 +74,23 @@ public interface BudgetRepository extends JpaRepository<Budget, String>, CashFlo
             @Param("currentEnd") LocalDateTime currentEnd
     );
 
+    @Query(value = """
+                SELECT
+                    bc.name AS category,
+                    bc.budget_type AS budgetType,
+                    SUM(b.amount) AS amount,
+                    SUM(b.amount) * 100.0 /
+                        SUM(SUM(b.amount)) OVER (PARTITION BY bc.budget_type) AS amountPct
+                FROM budgets b
+                JOIN budget_categories bc ON bc.id = b.budget_category_id
+                WHERE b.user_id = :userId
+                  AND b.budget_date >= :startDate
+                  AND b.budget_date < :endDate
+                GROUP BY bc.name, bc.budget_type
+            """, nativeQuery = true)
+    List<BudgetComposition> getBudgetCompositionAnalytics(
+            @Param("userId") String userId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
+    );
 }

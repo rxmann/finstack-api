@@ -1,12 +1,14 @@
 package com.app.budgets.budget.repository;
 
-import com.app.budgets.dashboard.dto.CashFlowResponseDTO;
+import com.app.budgets.budget.model.BudgetType;
+import com.app.budgets.dashboard.dto.response.CashFlowResponse;
 import com.app.budgets.dashboard.dto.Granularity;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class BudgetRepositoryImpl implements CashFlowRepositoryCustom {
@@ -14,11 +16,14 @@ public class BudgetRepositoryImpl implements CashFlowRepositoryCustom {
     private final EntityManager em;
 
     @Override
-    public List<CashFlowResponseDTO> getCashFlowData(
+    public List<CashFlowResponse> getCashFlowData(
             String userId,
             Granularity granularity,
             LocalDateTime startDate,
-            LocalDateTime endDate) {
+            LocalDateTime endDate,
+            Set<BudgetType> incomeTypes,
+            Set<BudgetType> expenseTypes
+    ) {
 
         String sql = """
                 WITH date_filler AS (

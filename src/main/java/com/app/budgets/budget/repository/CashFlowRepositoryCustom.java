@@ -1,16 +1,21 @@
 package com.app.budgets.budget.repository;
 
-import com.app.budgets.dashboard.dto.CashFlowResponseDTO;
+import com.app.budgets.budget.model.BudgetType;
 import com.app.budgets.dashboard.dto.Granularity;
+import com.app.budgets.dashboard.dto.response.CashFlowResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface CashFlowRepositoryCustom {
-    List<CashFlowResponseDTO> getCashFlowData(
+    List<CashFlowResponse> getCashFlowData(
             String userId,
             Granularity granularity,
             LocalDateTime startDate,
-            LocalDateTime endDate
+            LocalDateTime endDate,
+            Set<BudgetType> incomeTypes,
+            Set<BudgetType> expenseTypes
+
     );
 }

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.app.budgets.common.model.BaseEntity;
-import com.app.budgets.dashboard.dto.CashFlowResponseDTO;
+import com.app.budgets.dashboard.dto.response.CashFlowResponse;
 import com.app.budgets.user.model.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -24,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 @SqlResultSetMapping(
         name = "CashFlowMapping",
         classes = @ConstructorResult(
-                targetClass = CashFlowResponseDTO.class,
+                targetClass = CashFlowResponse.class,
                 columns = {
                         @ColumnResult(name = "dateRange", type = String.class),
                         @ColumnResult(name = "period", type = LocalDate.class),

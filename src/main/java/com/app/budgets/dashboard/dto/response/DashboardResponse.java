@@ -1,9 +1,9 @@
-package com.app.budgets.dashboard.dto;
+package com.app.budgets.dashboard.dto.response;
 
 import lombok.Builder;
 
 @Builder
-public record DashboardResponseDTO(
+public record DashboardResponse(
         MetricCard income,
         MetricCard expense,
         RecurringMetricCard recurring,

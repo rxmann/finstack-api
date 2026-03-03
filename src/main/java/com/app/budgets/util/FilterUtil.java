@@ -1,13 +1,11 @@
 package com.app.budgets.util;
 
 import com.app.budgets.common.enums.DateRange;
-import com.app.budgets.dashboard.dto.DashboardFilter;
+import com.app.budgets.dashboard.dto.request.DashboardFilter;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 
 @Component

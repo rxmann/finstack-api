@@ -1,5 +1,6 @@
-package com.app.budgets.dashboard.dto;
+package com.app.budgets.dashboard.dto.response;
 
+import com.app.budgets.dashboard.dto.Trend;
 import lombok.Builder;
 
 import java.math.BigDecimal;
