@@ -22,7 +22,10 @@ public class CookieUtil {
         cookie.setSecure(SECURE);
         cookie.setPath(COOKIE_PATH);
         cookie.setMaxAge(MAX_AGE);
-        response.addCookie(cookie);
+        // response.addCookie(cookie);
+        String cookieHeader = String.format("%s=%s; Max-Age=%d; Path=%s; Secure=%b; HttpOnly=%b; SameSite=None",
+                COOKIE_NAME, jwtToken, MAX_AGE, COOKIE_PATH, SECURE, HTTP_ONLY);
+        response.addHeader("Set-Cookie", cookieHeader);
     }
 
     public void clearJwtCookie(HttpServletResponse response) {
