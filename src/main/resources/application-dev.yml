@@ -15,8 +15,8 @@ spring:
     password: secretpass
   jpa:
     hibernate:
-      ddl-auto: update
-    show_sql: true
+      ddl-auto: validate
+    show_sql: false
     properties:
       hibernate.format_sql: false
   flyway:

@@ -1,24 +1,18 @@
 package com.app.budgets.budget.model;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.app.budgets.common.model.BaseEntity;
 import com.app.budgets.dashboard.dto.metric.ExpenseDistributionMetric;
 import com.app.budgets.dashboard.dto.response.CashFlowResponse;
 import com.app.budgets.user.model.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 @SqlResultSetMapping(
@@ -46,15 +40,20 @@ import lombok.experimental.SuperBuilder;
         )
 )
 @Entity
-@Table(name = "budgets", indexes = {
-        @Index(name = "idx_user_budget_date", columnList = "user_id, budget_date")
-})
+@Table(name = "budgets",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"recurring_budget_id", "budget_date"})
+        },
+        indexes = {
+                @Index(name = "idx_user_budget_date", columnList = "user_id, budget_date"),
+                @Index(name = "idx_recurring_budget_id", columnList = "recurring_budget_id")
+        })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-@ToString(exclude = { "user" })
+@ToString(exclude = {"user"})
 public class Budget extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -86,4 +85,7 @@ public class Budget extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recurring_budget_id", nullable = true)
     private RecurringBudget recurringBudget;
+
+    @Version
+    private Long version;
 }

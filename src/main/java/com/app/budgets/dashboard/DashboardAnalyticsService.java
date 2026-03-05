@@ -81,12 +81,7 @@ public class DashboardAnalyticsService {
         DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
         Granularity granularity = GranularityResolver.resolveGranularity(requestDTO.getFilter());
 
-        return budgetRepository.getExpenseDistribution(
-                user.getId(),
-                granularity,
-                dateRange.startDate(),
-                dateRange.endDate()
-        );
+        return budgetRepository.getExpenseDistribution(user.getId(), granularity, dateRange.startDate(), dateRange.endDate());
     }
 
     /**
