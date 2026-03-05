@@ -3,7 +3,8 @@ package com.app.budgets.dashboard;
 import com.app.budgets.budget.model.BudgetType;
 import com.app.budgets.budget.repository.BudgetRepository;
 import com.app.budgets.common.enums.DateRange;
-import com.app.budgets.dashboard.dto.*;
+import com.app.budgets.dashboard.dto.Granularity;
+import com.app.budgets.dashboard.dto.Trend;
 import com.app.budgets.dashboard.dto.metric.*;
 import com.app.budgets.dashboard.dto.request.DashboardRequest;
 import com.app.budgets.dashboard.dto.response.*;
@@ -16,7 +17,6 @@ import com.app.budgets.util.FilterUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -74,6 +74,19 @@ public class DashboardAnalyticsService {
         DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
         var rows = budgetRepository.getBudgetCompositionAnalytics(user.getId(), dateRange.startDate(), dateRange.endDate());
         return buildTreeMap(rows);
+    }
+
+    public List<ExpenseDistributionMetric> getExpenseDistribution(DashboardRequest requestDTO) {
+        var user = userAuth.getCurrentUser();
+        DateRange dateRange = FilterUtil.calculateDates(requestDTO.getFilter());
+        Granularity granularity = GranularityResolver.resolveGranularity(requestDTO.getFilter());
+
+        return budgetRepository.getExpenseDistribution(
+                user.getId(),
+                granularity,
+                dateRange.startDate(),
+                dateRange.endDate()
+        );
     }
 
     /**

@@ -1,8 +1,9 @@
 package com.app.budgets.budget.repository;
 
 import com.app.budgets.budget.model.BudgetType;
-import com.app.budgets.dashboard.dto.response.CashFlowResponse;
 import com.app.budgets.dashboard.dto.Granularity;
+import com.app.budgets.dashboard.dto.metric.ExpenseDistributionMetric;
+import com.app.budgets.dashboard.dto.response.CashFlowResponse;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
-public class BudgetRepositoryImpl implements CashFlowRepositoryCustom {
+public class BudgetRepositoryImpl implements AnalyticsRepositoryCustom {
 
     private final EntityManager em;
 
@@ -63,6 +64,58 @@ public class BudgetRepositoryImpl implements CashFlowRepositoryCustom {
                 );
 
         return em.createNativeQuery(sql, "CashFlowMapping")
+                .setParameter("userId", userId)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
+    }
+
+    @Override
+    public List<ExpenseDistributionMetric> getExpenseDistribution(
+            String userId,
+            Granularity granularity,
+            LocalDateTime startDate,
+            LocalDateTime endDate) {
+
+        String sql = """
+            WITH date_filler AS (
+                SELECT generate_series(
+                    date_trunc('%s', CAST(:startDate AS timestamp)),
+                    date_trunc('%s', CAST(:endDate AS timestamp) - interval '1 day'),
+                    interval '%s'
+                ) AS period
+            ),
+            base_data AS (
+                SELECT
+                    date_trunc('%s', b.budget_date) AS period,
+                    bc.name as category,
+                    SUM(b.amount) AS amount
+                FROM budgets b
+                JOIN budget_categories bc ON bc.id = b.budget_category_id
+                WHERE b.user_id = :userId
+                  AND bc.budget_type IN ('EXPENSE', 'LEND', 'EXTRA')
+                  AND b.budget_date >= :startDate
+                  AND b.budget_date < :endDate
+                GROUP BY 1, 2
+            )
+            SELECT
+                to_char(df.period, '%s') AS periodStr,
+                df.period::date AS period,
+                COALESCE(bd.category, 'Other') AS category,
+                COALESCE(bd.amount, 0) AS amount
+            FROM date_filler df
+            LEFT JOIN base_data bd ON bd.period = df.period
+            ORDER BY df.period, category
+            """
+                .formatted(
+                        granularity.getTruncUnit(),
+                        granularity.getTruncUnit(),
+                        granularity.getInterval(),
+                        granularity.getTruncUnit(),
+                        granularity.getLabelFormat()
+                );
+
+        return em.createNativeQuery(sql, "ExpenseDistributionMapping")
                 .setParameter("userId", userId)
                 .setParameter("startDate", startDate)
                 .setParameter("endDate", endDate)

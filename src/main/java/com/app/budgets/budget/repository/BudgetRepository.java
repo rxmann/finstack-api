@@ -6,8 +6,10 @@ import com.app.budgets.common.enums.DateRange;
 import com.app.budgets.dashboard.dto.Granularity;
 import com.app.budgets.dashboard.dto.metric.BudgetComposition;
 import com.app.budgets.dashboard.dto.metric.BudgetSummary;
+import com.app.budgets.dashboard.dto.metric.ExpenseDistributionMetric;
 import com.app.budgets.dashboard.dto.metric.RecurringMetrics;
 import com.app.budgets.dashboard.dto.treemap.TreeMapResponse;
+import io.micrometer.common.KeyValues;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,17 +19,18 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface BudgetRepository extends JpaRepository<Budget, String>, CashFlowRepositoryCustom {
+public interface BudgetRepository extends JpaRepository<Budget, String>, AnalyticsRepositoryCustom {
     Page<Budget> findAllByUserId(String userId, Pageable pageable);
 
     Optional<Budget> findByIdAndUserId(String budgetId, String id);
 
     @Query("""
-                SELECT 
+                SELECT
                     COALESCE(SUM(CASE 
                         WHEN b.budgetDate >= :currentStart AND b.budgetDate < :currentEnd 
                         AND b.budgetCategory.budgetType IN :incomeTypes 
@@ -59,7 +62,7 @@ public interface BudgetRepository extends JpaRepository<Budget, String>, CashFlo
 
 
     @Query("""
-                SELECT 
+                SELECT
                     COUNT(b) as count,
                     COALESCE(SUM(b.amount), 0) as sum
                 FROM Budget b

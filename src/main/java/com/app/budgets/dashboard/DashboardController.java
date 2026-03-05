@@ -1,5 +1,6 @@
 package com.app.budgets.dashboard;
 
+import com.app.budgets.dashboard.dto.metric.ExpenseDistributionMetric;
 import com.app.budgets.dashboard.dto.response.CashFlowResponse;
 import com.app.budgets.dashboard.dto.request.DashboardRequest;
 import com.app.budgets.dashboard.dto.response.DashboardResponse;
@@ -26,9 +27,7 @@ public class DashboardController {
     @GetMapping()
     public ResponseEntity<DashboardResponse> getDashboardAnalytics(@Valid DashboardRequest requestDTO) {
         Optional<DashboardResponse> result = dashboardAnalyticsService.getDashboardAnalytics(requestDTO);
-        return result
-                .map(r -> ResponseEntity.ok().body(r))
-                .orElse(ResponseEntity.notFound().build());
+        return result.map(r -> ResponseEntity.ok().body(r)).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/cashflow")
@@ -41,5 +40,11 @@ public class DashboardController {
     public ResponseEntity<TreeMapResponse> getBudgetSplits(@Valid DashboardRequest requestDTO) {
         var result = dashboardAnalyticsService.getBudgetComposition(requestDTO);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/expense-distribution")
+    public ResponseEntity<List<ExpenseDistributionMetric>> getExpenseDistribution(@Valid DashboardRequest requestDTO) {
+        List<ExpenseDistributionMetric> data = dashboardAnalyticsService.getExpenseDistribution(requestDTO);
+        return ResponseEntity.ok(data);
     }
 }

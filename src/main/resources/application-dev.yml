@@ -10,7 +10,7 @@ application:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/budgets_db
+    url: jdbc:postgresql://localhost:5430/budgets_db
     username: rxman
     password: secretpass
   jpa:

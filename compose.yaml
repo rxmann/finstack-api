@@ -1,12 +1,12 @@
 services:
-  postgres:
+  budgets-db:
     image: bitnami/postgresql:latest
     environment:
       POSTGRESQL_DATABASE: budgets_db
       POSTGRESQL_PASSWORD: secretpass
       POSTGRESQL_USERNAME: rxman
     ports:
-      - "5432:5432"
+      - "5430:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -18,12 +18,12 @@ services:
       dockerfile: Dockerfile
     container_name: budget-app
     depends_on:
-      - postgres
+      - budgets-db
     env_file: # <--- Option A: Explicitly tell it to use the .env file
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/budgets_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://budgets-db:5432/budgets_db
       - SPRING_DATASOURCE_USERNAME=rxman
       - SPRING_DATASOURCE_PASSWORD=secretpass
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
