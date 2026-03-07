@@ -4,6 +4,7 @@ import com.app.budgets.budget.model.BudgetType;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 public class BudgetResponse {
@@ -13,4 +14,5 @@ public class BudgetResponse {
     private BudgetType budgetType;
     private String budgetCategoryName;
     private String budgetCategoryId;
+    private LocalDate budgetDate;
 }

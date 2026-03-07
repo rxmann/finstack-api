@@ -2,4 +2,4 @@ spring:
   application:
     name: budget-app
   profiles:
-    active: prod
+    active: dev
