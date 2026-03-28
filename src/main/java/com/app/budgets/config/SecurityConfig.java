@@ -1,9 +1,10 @@
 package com.app.budgets.config;
 
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
 import com.app.budgets.auth.filter.JwtAuthFilter;
 import com.app.budgets.exception.oauth2.OAuth2SuccessHandler;
+import com.app.budgets.exception.oauth2.RestOAuth2FailureHandler;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -15,12 +16,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.app.budgets.exception.oauth2.RestOAuth2FailureHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
+import java.util.List;
 
 @Slf4j
 @Configuration
@@ -51,9 +54,9 @@ public class SecurityConfig {
                                 "/api-docs",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-//                                "/api/v1/api-docs/**",
-//                                "/api/v1/swagger-ui/**",
-//                                "/api/v1/swagger-ui.html",
+                                "/api/v1/api-docs/**",
+                                "/api/v1/swagger-ui/**",
+                                "/api/v1/swagger-ui.html",
                                 "/auth/**",
                                 "/public/**")
                         .permitAll()
@@ -68,14 +71,14 @@ public class SecurityConfig {
                         .failureHandler(restOAuth2FailureHandler)
                         .successHandler(oAuth2SuccessHandler))
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint((_, response, authException) -> {
+                        .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpStatus.UNAUTHORIZED.value());
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                             response.getWriter().write(
                                     "{\"errorCode\":401,\"errorDescription\":\"Authentication Failed\",\"error\":\""
                                             + authException.getMessage() + "\"}");
                         })
-                        .accessDeniedHandler((_, response, accessDeniedException) -> {
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.setStatus(HttpStatus.FORBIDDEN.value());
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                             response.getWriter().write(
@@ -84,4 +87,5 @@ public class SecurityConfig {
                         }))
                 .build();
     }
+
 }

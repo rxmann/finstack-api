@@ -9,6 +9,7 @@ import com.app.budgets.budget.repository.BudgetCategoryRepository;
 import com.app.budgets.budget.repository.BudgetRepository;
 import com.app.budgets.user.UserAuth;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BudgetService {
 
     private final BudgetRepository budgetRepository;
@@ -41,6 +43,7 @@ public class BudgetService {
     @Transactional(readOnly = true)
     public List<BudgetResponse> getAllBudgets(Pageable pageable) {
         var user = userAuth.getCurrentUser();
+        log.info(pageable.toString());
         return budgetRepository.findAllByUserId(user.getId(), pageable).stream().map(budgetMapper::toResponse).toList();
     }
 
@@ -81,9 +84,19 @@ public class BudgetService {
         // Map recurring budget to BudgetRequest
         BudgetRequest request = BudgetRequest.builder().amount(rBudget.getAmount()).name(rBudget.getName()).budgetDate(java.sql.Date.valueOf(rBudget.getNextOccurrence())).budgetCategoryId(category.getId()).build();
 
-        Budget budget = Budget.builder().amount(request.getAmount()).name(request.getName()).budgetDate(LocalDateTime.now()).budgetCategory(category).user(user).receiptUrl(request.getReceiptUrl()).tags(request.getTags()).build();
+        Budget budget = Budget.builder()
+                .amount(request.getAmount())
+                .name(request.getName())
+                .budgetDate(LocalDateTime.now())
+                .budgetCategory(category)
+                .recurringBudget(rBudget)
+                .user(user)
+                .receiptUrl(request.getReceiptUrl())
+                .tags(request.getTags())
+                .build();
 
         Budget saved = budgetRepository.save(budget);
+        log.info("Saved budget {} from recurring budget: {}", budget.getId(), rBudget.getId());
 
         return budgetMapper.toResponse(saved);
     }

@@ -8,7 +8,6 @@ import com.app.budgets.common.enums.BudgetFrequency;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,7 +17,6 @@ import static com.app.budgets.budget.service.RecurringBudgetService.getLocalDate
 @Service
 @Slf4j
 public class RecurringBudgetScheduler {
-
     private final RecurringBudgetRepository recurringBudgetRepository;
     private final BudgetService budgetService;
 
@@ -28,20 +26,25 @@ public class RecurringBudgetScheduler {
     }
 
     //    @Scheduled(cron = "10 0 0 * * *")
-    @Scheduled(initialDelay = 1000, fixedDelay = 10000)
-    @Transactional
+//    @Scheduled(initialDelay = 1000, fixedDelay = 10000)
     public void processRecurringBudgets() {
 
         log.info("Processing recurring budgets");
         LocalDate today = LocalDate.now();
         List<RecurringBudget> dueBudgets = recurringBudgetRepository.findDueRecurringBudgets(today);
 
+        if (dueBudgets.isEmpty()) {
+            log.warn("No recurring budgets found for today");
+            return;
+        }
+
         dueBudgets.forEach(rBudget -> {
             try {
                 log.info("Processing recurring budget: {}", rBudget.getId());
 
                 // 1 Create actual budget for today
-                budgetService.createBudgetFromRecurring(rBudget);
+                var createBudgetResult = budgetService.createBudgetFromRecurring(rBudget);
+                log.info(createBudgetResult.toString());
 
                 // 2 Calculate next occurrence
                 LocalDate next = calculateNextOccurrence(rBudget.getNextOccurrence(), rBudget.getFrequency());
@@ -49,6 +52,7 @@ public class RecurringBudgetScheduler {
 
                 // 3 Save update
                 recurringBudgetRepository.save(rBudget);
+                log.info("Recurring budget {} scheduled  at: {]", rBudget.getId(), next.toString());
 
             } catch (Exception e) {
                 log.error("Failed to process recurring budget {}: {}", rBudget.getId(), e.getMessage(), e);

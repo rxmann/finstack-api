@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterRequestDto {
+public class RegisterRequest {
     @NotEmpty(message = "Username must not be empty")
     @NotBlank(message = "Username must not be empty")
     @Schema(description = "Username to register.")

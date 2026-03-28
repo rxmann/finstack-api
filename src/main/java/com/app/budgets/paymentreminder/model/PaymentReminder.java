@@ -13,10 +13,14 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "payment_reminders", indexes = {
-        @Index(name = "idx_user_next_due_date", columnList = "user_id, next_due_date"),
-        @Index(name = "idx_user_id", columnList = "user_id")
-})
+@Table(name = "payment_reminders",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "reminder_name"})
+        },
+        indexes = {
+                @Index(name = "idx_user_next_due_date", columnList = "user_id, next_due_date"),
+                @Index(name = "idx_user_id", columnList = "user_id")
+        })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

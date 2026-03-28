@@ -36,6 +36,7 @@ public class UserService {
     public UserDto getUserProfile() {
         var authUser = userAuth.getCurrentUser();
         var user = userRepository.findById(authUser.getId()).orElse(null);
+        log.info("User fetched: {}", user.getId());
         return userMapper.toEntity(user);
     }
 }

@@ -20,7 +20,7 @@ public class BudgetRequest {
     @Digits(integer = 13, fraction = 2, message = "Amount must have max 13 integer and 2 decimal digits")
     private BigDecimal amount;
 
-    @Size(max = 50, message = "Name must not exceed 500 characters")
+    @Size(max = 50, message = "Name must not exceed 50 characters")
     private String name;
 
     @NotNull(message = "Budget date is required")

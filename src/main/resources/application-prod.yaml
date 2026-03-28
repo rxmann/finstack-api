@@ -1,27 +1,28 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     context-path: /api/v1
-application:
-  security:
-    jwt:
-      secret-key: bXktc3VwZXItc2VjcmV0LWp3dC1rZXktdGhhdC1pcy1sb25nLWVub3VnaC1mb3ItMjU2LWJpdHMtc2VjdXJpdHktcmVxdWlyZW1lbnQ=
-      expiration: 86_400_000
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5430/budgets_db
-    username: rxman
-    password: secretpass
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: validate
-    show_sql: false
     properties:
-      hibernate.format_sql: false
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+    show-sql: false
+
   flyway:
     enabled: true
     baseline-on-migrate: true
+
   security:
     oauth2:
       client:
@@ -33,15 +34,22 @@ spring:
               - openid
               - profile
               - email
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET}
+      expiration: 86400000
+
 logging:
   level:
-    org:
-      springframework:
-        security: DEBUG
+    root: INFO
+    org.springframework.security: WARN
+
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui
-    tags-sorter: none   # use 'none' to preserve order defined in the spec
-    doc-expansion: list
+    tags-sorter: none
+    doc-expansion: none

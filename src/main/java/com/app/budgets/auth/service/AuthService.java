@@ -15,10 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.app.budgets.auth.dto.AuthenticationRequestDto;
-import com.app.budgets.auth.dto.AuthenticationResponseDto;
-import com.app.budgets.auth.dto.LoginResponseDto;
-import com.app.budgets.auth.dto.RegisterRequestDto;
+import com.app.budgets.auth.dto.AuthenticationRequest;
+import com.app.budgets.auth.dto.AuthenticationResponse;
+import com.app.budgets.auth.dto.LoginResponse;
+import com.app.budgets.auth.dto.RegisterRequest;
 import com.app.budgets.exception.exceptions.UserAlreadyExistsException;
 import com.app.budgets.user.UserRepository;
 import com.app.budgets.auth.model.AuthProviderType;
@@ -39,21 +39,21 @@ public class AuthService {
     private final OAuth2Util oAuth2Util;
     private final CookieUtil cookieUtil;
 
-    public User signUpInternal(RegisterRequestDto registerRequestDto, AuthProviderType authProviderType,
-            String providerId) {
+    public User signUpInternal(RegisterRequest registerRequest, AuthProviderType authProviderType,
+                               String providerId) {
 
-        if (userRepository.findByEmail(registerRequestDto.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("User already exists with email: " + registerRequestDto.getEmail());
+        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException("User already exists with email: " + registerRequest.getEmail());
         }
 
-        if (userRepository.findByUsername(registerRequestDto.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException(
-                    "User already exists with username: " + registerRequestDto.getUsername());
+                    "User already exists with username: " + registerRequest.getUsername());
         }
 
         User user = User.builder()
-                .username(registerRequestDto.getUsername())
-                .email(registerRequestDto.getEmail())
+                .username(registerRequest.getUsername())
+                .email(registerRequest.getEmail())
                 .passwordHash("grapes")
                 .providerId(providerId)
                 .authProviderType(authProviderType)
@@ -62,21 +62,21 @@ public class AuthService {
 
         log.debug(user.toString());
         if (authProviderType == AuthProviderType.EMAIL) {
-            user.setPasswordHash(passwordEncoder.encode(registerRequestDto.getPassword()));
+            user.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
         }
         userRepository.save(user);
 
         return user;
     }
 
-    public AuthenticationResponseDto signup(RegisterRequestDto registerRequestDto) {
-        User user = signUpInternal(registerRequestDto, AuthProviderType.EMAIL, null);
+    public AuthenticationResponse signup(RegisterRequest registerRequest) {
+        User user = signUpInternal(registerRequest, AuthProviderType.EMAIL, null);
         var userDetails = new CustomUserDetails(user);
         var jwtToken = jwtService.generateToken(userDetails);
-        return AuthenticationResponseDto.builder().token(jwtToken).build();
+        return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request, HttpServletResponse response) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         var auth = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
@@ -85,11 +85,11 @@ public class AuthService {
 
         cookieUtil.addJwtCookie(response, jwtToken);
 
-        return AuthenticationResponseDto.builder().token(jwtToken).build();
+        return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public ResponseEntity<LoginResponseDto> handleOAuth2LoginRequest(OAuth2User oAuth2User, String registrationId,
-            HttpServletResponse response) {
+    public ResponseEntity<LoginResponse> handleOAuth2LoginRequest(OAuth2User oAuth2User, String registrationId,
+                                                                  HttpServletResponse response) {
         // fetch the provider type and provider id
         AuthProviderType authProviderType = oAuth2Util.getProviderTypeFromRegistrationId(registrationId);
         String providerId = oAuth2Util.determineProviderIdFromOAuth2user(oAuth2User, registrationId);
@@ -102,7 +102,7 @@ public class AuthService {
         if (user == null && emailUser == null) {
             // register user
             String username = oAuth2Util.determineUsernameFromOAuth2user(oAuth2User, registrationId, providerId);
-            user = signUpInternal(RegisterRequestDto.builder().username(username).email(email).build(),
+            user = signUpInternal(RegisterRequest.builder().username(username).email(email).build(),
                     authProviderType, providerId);
         } else if (user != null) {
             if (email != null && !email.isBlank() && !email.equals(user.getEmail())) {
@@ -119,7 +119,7 @@ public class AuthService {
         var jwtToken = jwtService.generateToken(userDetails);
         cookieUtil.addJwtCookie(response, jwtToken);
 
-        var loginResponseDto = LoginResponseDto.builder().jwt(jwtToken).userId(user.getId())
+        var loginResponseDto = LoginResponse.builder().jwt(jwtToken).userId(user.getId())
                 .build();
 
         return ResponseEntity.ok(loginResponseDto);
