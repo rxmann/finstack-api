@@ -1,6 +1,8 @@
 package com.app.budgets.auth;
 
 import com.app.budgets.auth.service.AuthService;
+import com.app.budgets.util.CookieUtil;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +26,11 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final CookieUtil cookieUtil;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, CookieUtil cookieUtil) {
         this.authService = authService;
+        this.cookieUtil = cookieUtil;
     }
 
     @PostMapping("/register")
@@ -37,8 +41,14 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody AuthenticationRequest request,
-                                                        HttpServletResponse response) {
+            HttpServletResponse response) {
         return ResponseEntity.ok(authService.authenticate(request, response));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        cookieUtil.clearJwtCookie(response);
+        return ResponseEntity.ok().build();
     }
 
 }

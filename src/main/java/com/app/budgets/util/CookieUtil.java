@@ -12,34 +12,33 @@ public class CookieUtil {
     private static final String COOKIE_NAME = "access_token";
     private static final String COOKIE_PATH = "/";
     private static final boolean HTTP_ONLY = true;
-    private static final boolean SECURE = true; // false for local dev if not HTTPS
-    private static final int MAX_AGE = 60 * 60 * 24; // 1 day
 
-    @Value("${spring.profiles.active}")
-    private String DEPLOYMENT;
+    @Value("${spring.profiles.active:prod}") // Fallback default to prod if not specified
+    private String deployment;
+
+    // Quick side note: In Java, always use .equals() for string comparison!
+    private boolean isSecure() {
+        return !"dev".equalsIgnoreCase(deployment);
+    }
 
     // ---------------- JWT COOKIE ----------------
     public void addJwtCookie(HttpServletResponse response, String jwtToken) {
-        var isSecure = DEPLOYMENT == "dev" ? false : true;
         String cookieHeader = String.format(
                 "%s=%s; Max-Age=%d; Path=%s; Secure=%b; HttpOnly=%b; SameSite=None",
-                COOKIE_NAME, jwtToken, MAX_AGE, COOKIE_PATH, false, HTTP_ONLY);
+                COOKIE_NAME, jwtToken, 60 * 60 * 24, COOKIE_PATH, isSecure(), HTTP_ONLY);
         response.addHeader("Set-Cookie", cookieHeader);
     }
 
     public void clearJwtCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie(COOKIE_NAME, null);
-        cookie.setHttpOnly(HTTP_ONLY);
-        cookie.setSecure(SECURE);
-        cookie.setPath(COOKIE_PATH);
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        String cookieHeader = String.format(
+                "%s=; Max-Age=0; Path=%s; Secure=%b; HttpOnly=%b; SameSite=None",
+                COOKIE_NAME, COOKIE_PATH, isSecure(), HTTP_ONLY);
+        response.addHeader("Set-Cookie", cookieHeader);
     }
 
     public String extractJwtFromRequest(HttpServletRequest request) {
         if (request.getCookies() == null)
             return null;
-
         for (Cookie cookie : request.getCookies()) {
             if (COOKIE_NAME.equals(cookie.getName())) {
                 return cookie.getValue();
