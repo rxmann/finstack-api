@@ -1,8 +1,8 @@
 services:
-  budgets-db:
+  finstack-db:
     image: bitnami/postgresql:latest
     environment:
-      POSTGRESQL_DATABASE: budgets_db
+      POSTGRESQL_DATABASE: finstack_db
       POSTGRESQL_PASSWORD: secretpass
       POSTGRESQL_USERNAME: rxman
     ports:
@@ -10,34 +10,32 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - budget_network
+      - finstack_network
     restart: always
 
-  budget-app:
+  finstack-app-api:
     build:
       dockerfile: Dockerfile
-    container_name: budget-app
+    container_name: finstack-app-api
     depends_on:
       - budgets-db
     env_file: # <--- Option A: Explicitly tell it to use the .env file
       - .env
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://budgets-db:5432/budgets_db
-      - SPRING_DATASOURCE_USERNAME=rxman
-      - SPRING_DATASOURCE_PASSWORD=secretpass
+      - SPRING_PROFILES_ACTIVE={DEPLOYMENT}
+      - SPRING_DATASOURCE_URL={DB_URL}
+      - SPRING_DATASOURCE_USERNAME={DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD={DB_PASSWORD}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_SECRET_KEY=${GOOGLE_SECRET_KEY}
     ports:
       - "8080:8080"
     networks:
-      - budget_network
+      - finstack_network
     restart: unless-stopped
-
-
 
 volumes:
   postgres_data:
 networks:
-  budget_network:
+  finstack_network:
     driver: bridge
