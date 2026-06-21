@@ -1,6 +1,7 @@
 services:
   finstack-db:
     image: bitnami/postgresql:latest
+    container_name: finstack-db
     environment:
       POSTGRESQL_DATABASE: finstack_db
       POSTGRESQL_PASSWORD: secretpass
@@ -18,7 +19,7 @@ services:
       dockerfile: Dockerfile
     container_name: finstack-app-api
     depends_on:
-      - budgets-db
+      - finstack-db
     env_file: # <--- Option A: Explicitly tell it to use the .env file
       - .env
     environment:
